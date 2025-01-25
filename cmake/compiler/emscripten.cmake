@@ -1,0 +1,15 @@
+
+add_compiler_flag(-fno-ident)
+add_compiler_flag(-fno-plt)
+add_compiler_flag(-fvisibility=hidden)
+add_compiler_flag(-fvisibility-inlines-hidden)
+
+macro(enable_warnings)
+    add_compiler_flag_release(-Werror)
+    add_compiler_flag(-ansi)
+    add_compiler_flag(-pedantic)
+    add_compiler_flag(-Wall)
+    add_compiler_flag(-Wextra)
+    add_compiler_flag(-Wshadow)
+    add_compiler_flag(-Wconversion)
+endmacro()

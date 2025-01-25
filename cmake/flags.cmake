@@ -1,0 +1,41 @@
+
+macro(add_compiler_flag flag)
+    add_definitions("${flag}")
+endmacro()
+
+macro(add_compiler_flag_release flag)
+    foreach(config RELEASE RELWITHDEBINFO MINSIZEREL)
+        foreach(lang C CXX)
+            set(CMAKE_${lang}_FLAGS_${config} "${CMAKE_${lang}_FLAGS_${config}} ${flag}")
+        endforeach()
+    endforeach()
+endmacro()
+
+macro(add_linker_flag flag)
+    foreach(target EXE SHARED)
+        set(CMAKE_${target}_LINKER_FLAGS "${CMAKE_${target}_LINKER_FLAGS} ${flag}")
+    endforeach()
+endmacro()
+
+macro(add_linker_flag_release flag)
+    foreach(config RELEASE RELWITHDEBINFO MINSIZEREL)
+        foreach(target EXE SHARED)
+            set(CMAKE_${target}_LINKER_FLAGS_${config} "${CMAKE_${target}_LINKER_FLAGS_${config}} ${flag}")
+        endforeach()
+    endforeach()
+endmacro()
+
+macro(add_linker_flag_release_only flag)
+    foreach(target EXE SHARED)
+        set(CMAKE_${target}_LINKER_FLAGS_RELEASE "${CMAKE_${target}_LINKER_FLAGS_RELEASE} ${flag}")
+    endforeach()
+endmacro()
+
+macro(remove_linker_flag flag)
+    foreach(config "" _DEBUG _RELEASE _RELWITHDEBINFO _MINSIZEREL)
+        foreach(target EXE SHARED)
+            string(REGEX REPLACE "${flag}" ""
+                CMAKE_${target}_LINKER_FLAGS${config} "${CMAKE_${target}_LINKER_FLAGS${config}}")
+        endforeach()
+    endforeach()
+endmacro()

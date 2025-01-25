@@ -196,7 +196,7 @@
 #if ((defined(__STDC__) && __STDC__ && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || (defined (__WATCOMC__) && (defined (_STDINT_H_INCLUDED) || __WATCOMC__ >= 1250)) || (defined(__GNUC__) && (__GNUC__ > 3 || defined(_STDINT_H) || defined(_STDINT_H_) || defined (__UINT_FAST64_TYPE__)) )) && !defined (_PSTDINT_H_INCLUDED)
 #include <stdint.h>
 #define _PSTDINT_H_INCLUDED
-# if defined(__GNUC__) && (defined(__x86_64__) || defined(__ppc64__))
+# if defined(__GNUC__) && (defined(__x86_64__) || defined(__ppc64__) || defined(__EMSCRIPTEN__))
 #  ifndef PRINTF_INT64_MODIFIER
 #   define PRINTF_INT64_MODIFIER "l"
 #  endif
@@ -333,7 +333,7 @@
 #if !defined(int8_t) && !defined(_INT8_T)
 # if (SCHAR_MAX == INT8_MAX) || defined (S_SPLINT_S)
     typedef signed char int8_t;
-#   define INT8_C(v) ((int8_t) v)
+#   define INT8_C(v) ((int8_t)(uint8_t) v)
 # else
 #   error "Platform not supported"
 # endif
@@ -369,13 +369,13 @@
 #if !defined(int16_t) && !defined(_INT16_T)
 #if (INT_MAX == INT16_MAX) || defined (S_SPLINT_S)
   typedef signed int int16_t;
-# define INT16_C(v) ((int16_t) (v))
+# define INT16_C(v) ((int16_t)(uint16_t) (v))
 # ifndef PRINTF_INT16_MODIFIER
 #  define PRINTF_INT16_MODIFIER ""
 # endif
 #elif (SHRT_MAX == INT16_MAX)
   typedef signed short int16_t;
-# define INT16_C(v) ((int16_t) (v))
+# define INT16_C(v) ((int16_t)(uint16_t) (v))
 # ifndef PRINTF_INT16_MODIFIER
 #  define PRINTF_INT16_MODIFIER "h"
 # endif
@@ -402,7 +402,7 @@
 # define UINT32_C(v) v ## U
 #elif (USHRT_MAX == UINT32_MAX)
   typedef unsigned short uint32_t;
-# define UINT32_C(v) ((unsigned int16_t) (v))
+# define UINT32_C(v) ((unsigned short) (v))
 # ifndef PRINTF_INT32_MODIFIER
 #  define PRINTF_INT32_MODIFIER ""
 # endif
@@ -432,7 +432,7 @@
 # endif
 #elif (SHRT_MAX == INT32_MAX)
   typedef signed short int32_t;
-# define INT32_C(v) ((int16_t) (v))
+# define INT32_C(v) ((int32_t)(uint32_t) (v))
 # ifndef PRINTF_INT32_MODIFIER
 #  define PRINTF_INT32_MODIFIER ""
 # endif
@@ -497,7 +497,11 @@
 # define LONG_LONG_MAX INT64_C (9223372036854775807)
 #endif
 #ifndef ULONG_LONG_MAX
+# ifdef __WATCOMC__
+# define ULONG_LONG_MAX UINT64_C (UINT64_MAX)
+# else
 # define ULONG_LONG_MAX UINT64_C (18446744073709551615)
+#endif
 #endif
 
 #if !defined (INT64_MAX) && defined (INT64_C)
@@ -658,7 +662,7 @@ typedef uint_least32_t uint_fast32_t;
  *  type limits.
  */
 
-#if defined(__WATCOMC__) || defined(_MSC_VER) || defined (__GNUC__)
+#if (defined(__WATCOMC__) && __WATCOMC__ >= 1060) || defined(_MSC_VER) || defined (__GNUC__)
 # include <wchar.h>
 # ifndef WCHAR_MIN
 #  define WCHAR_MIN 0
@@ -752,15 +756,18 @@ typedef uint_least32_t uint_fast32_t;
 #include <stdio.h>
 #include <string.h>
 
+#define glue2_aux(x,y) x ## y
+#define glue2(x,y) glue2_aux(x,y)
+
 #define glue3_aux(x,y,z) x ## y ## z
 #define glue3(x,y,z) glue3_aux(x,y,z)
 
-#define DECLU(bits) glue3(uint,bits,_t) glue3(u,bits,) = glue3(UINT,bits,_C) (0);
-#define DECLI(bits) glue3(int,bits,_t) glue3(i,bits,) = glue3(INT,bits,_C) (0);
+#define DECLU(bits) glue3(uint,bits,_t) glue2(u,bits) = glue3(UINT,bits,_C) (0);
+#define DECLI(bits) glue3(int,bits,_t) glue2(i,bits) = glue3(INT,bits,_C) (0);
 
-#define DECL(us,bits) glue3(DECL,us,) (bits)
+#define DECL(us,bits) glue2(DECL,us) (bits)
 
-#define TESTUMAX(bits) glue3(u,bits,) = ~glue3(u,bits,); if (glue3(UINT,bits,_MAX) != glue3(u,bits,)) printf ("Something wrong with UINT%d_MAX\n", bits)
+#define TESTUMAX(bits) glue2(u,bits) = ~glue2(u,bits); if (glue3(UINT,bits,_MAX) != glue2(u,bits)) printf ("Something wrong with UINT%d_MAX\n", bits)
 
 int main () {
 	DECL(I,8)
@@ -776,29 +783,30 @@ int main () {
 	intmax_t imax = INTMAX_C(0);
 	uintmax_t umax = UINTMAX_C(0);
 	char str0[256], str1[256];
+	int result = EXIT_SUCCESS;
 
 	sprintf (str0, "%d %x\n", 0, ~0);
 
 	sprintf (str1, "%d %x\n",  i8, ~0);
-	if (0 != strcmp (str0, str1)) printf ("Something wrong with i8 : %s\n", str1);
+	0 != strcmp(str0, str1) ? printf ("Something wrong with i8 : %s\n", str1), result = EXIT_FAILURE : 0;
 	sprintf (str1, "%u %x\n",  u8, ~0);
-	if (0 != strcmp (str0, str1)) printf ("Something wrong with u8 : %s\n", str1);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with u8 : %s\n", str1), result = EXIT_FAILURE;
 	sprintf (str1, "%d %x\n",  i16, ~0);
-	if (0 != strcmp (str0, str1)) printf ("Something wrong with i16 : %s\n", str1);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with i16 : %s\n", str1), result = EXIT_FAILURE;
 	sprintf (str1, "%u %x\n",  u16, ~0);
-	if (0 != strcmp (str0, str1)) printf ("Something wrong with u16 : %s\n", str1);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with u16 : %s\n", str1), result = EXIT_FAILURE;
 	sprintf (str1, "%" PRINTF_INT32_MODIFIER "d %x\n",  i32, ~0);
-	if (0 != strcmp (str0, str1)) printf ("Something wrong with i32 : %s\n", str1);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with i32 : %s\n", str1), result = EXIT_FAILURE;
 	sprintf (str1, "%" PRINTF_INT32_MODIFIER "u %x\n",  u32, ~0);
-	if (0 != strcmp (str0, str1)) printf ("Something wrong with u32 : %s\n", str1);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with u32 : %s\n", str1), result = EXIT_FAILURE;
 #ifdef INT64_MAX
 	sprintf (str1, "%" PRINTF_INT64_MODIFIER "d %x\n",  i64, ~0);
-	if (0 != strcmp (str0, str1)) printf ("Something wrong with i64 : %s\n", str1);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with i64 : %s\n", str1), result = EXIT_FAILURE;
 #endif
 	sprintf (str1, "%" PRINTF_INTMAX_MODIFIER "d %x\n",  imax, ~0);
-	if (0 != strcmp (str0, str1)) printf ("Something wrong with imax : %s\n", str1);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with imax : %s\n", str1), result = EXIT_FAILURE;
 	sprintf (str1, "%" PRINTF_INTMAX_MODIFIER "u %x\n",  umax, ~0);
-	if (0 != strcmp (str0, str1)) printf ("Something wrong with umax : %s\n", str1);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with umax : %s\n", str1), result = EXIT_FAILURE;
 
 	TESTUMAX(8);
 	TESTUMAX(16);
@@ -807,7 +815,7 @@ int main () {
 	TESTUMAX(64);
 #endif
 
-	return EXIT_SUCCESS;
+	return result;
 }
 
 #endif
