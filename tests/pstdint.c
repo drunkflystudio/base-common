@@ -43,7 +43,7 @@ int main()
     char buf[256];
     int r;
 
-    remove("tests.run");
+    remove("t_base.run");
 
     /* pstdint.h */
 
@@ -120,9 +120,9 @@ int main()
     /* done */
 
     if (success) {
-        FILE* f = fopen("tests.run", "w");
+        FILE* f = fopen("t_base.run", "w");
         if (!f) {
-            fprintf(stderr, "can't write \"%s\": %s\n", "tests.run", strerror(errno));
+            fprintf(stderr, "can't write \"%s\": %s\n", "t_base.run", strerror(errno));
             return EXIT_FAILURE;
         }
         fwrite("1", 1, 1, f);

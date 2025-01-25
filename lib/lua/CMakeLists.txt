@@ -47,8 +47,7 @@ source_group("Source Files" FILES ${src})
 
 add_library(LuaCore STATIC ${src})
 target_compile_definitions(LuaCore PUBLIC "$<$<CONFIG:Debug>:LUA_USE_APICHECK>")
-target_include_directories(LuaCore PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
-target_include_directories(LuaCore PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lua")
+target_include_directories(LuaCore PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set_target_properties(LuaCore PROPERTIES
     FOLDER "Libs"

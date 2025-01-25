@@ -12,6 +12,9 @@
 #include <stddef.h>
 #include "pstdint.h"
 
+#ifdef lua_State
+#undef lua_State
+#endif
 
 /*
 ** ===================================================================
