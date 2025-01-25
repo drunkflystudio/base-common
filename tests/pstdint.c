@@ -39,7 +39,7 @@ int pstdint_main(void);
 #include "pstdint.h"
 #undef main
 
-int main()
+int main(void)
 {
     int success = 1;
     char buf[256];
