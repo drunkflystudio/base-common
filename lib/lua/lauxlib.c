@@ -552,7 +552,8 @@ static size_t newbuffsize (luaL_Buffer *B, size_t sz) {
 ** 'B'. 'boxidx' is the relative position in the stack where is the
 ** buffer's box or its placeholder.
 */
-static char *prepbuffsize (luaL_Buffer *B, size_t sz, int boxidx) {
+static char *prepbuffsize (luaL_Buffer *B, size_t sz) {
+  int boxidx = B->stackIndex;
   checkbufferlevel(B, boxidx);
   if (B->size - B->n >= sz)  /* enough space? */
     return B->b + B->n;
@@ -581,13 +582,13 @@ static char *prepbuffsize (luaL_Buffer *B, size_t sz, int boxidx) {
 ** returns a pointer to a free area with at least 'sz' bytes
 */
 LUALIB_API char *luaL_prepbuffsize (luaL_Buffer *B, size_t sz) {
-  return prepbuffsize(B, sz, -1);
+  return prepbuffsize(B, sz);
 }
 
 
 LUALIB_API void luaL_addlstring (luaL_Buffer *B, const char *s, size_t l) {
   if (l > 0) {  /* avoid 'memcpy' when 's' can be NULL */
-    char *b = prepbuffsize(B, l, -1);
+    char *b = prepbuffsize(B, l);
     memcpy(b, s, l * sizeof(char));
     luaL_addsize(B, l);
   }
@@ -604,8 +605,8 @@ LUALIB_API void luaL_pushresult (luaL_Buffer *B) {
   checkbufferlevel(B, -1);
   lua_pushlstring(L, B->b, B->n);
   if (buffonstack(B))
-    lua_closeslot(L, -2);  /* close the box */
-  lua_remove(L, -2);  /* remove box or placeholder from the stack */
+    lua_closeslot(L, B->stackIndex);  /* close the box */
+  lua_remove(L, B->stackIndex);  /* remove box or placeholder from the stack */
 }
 
 
@@ -628,7 +629,7 @@ LUALIB_API void luaL_addvalue (luaL_Buffer *B) {
   lua_State *L = B->L;
   size_t len;
   const char *s = lua_tolstring(L, -1, &len);
-  char *b = prepbuffsize(B, len, -2);
+  char *b = prepbuffsize(B, len);
   memcpy(b, s, len * sizeof(char));
   luaL_addsize(B, len);
   lua_pop(L, 1);  /* pop string */
@@ -641,12 +642,13 @@ LUALIB_API void luaL_buffinit (lua_State *L, luaL_Buffer *B) {
   B->n = 0;
   B->size = LUAL_BUFFERSIZE;
   lua_pushlightuserdata(L, (void*)B);  /* push placeholder */
+  B->stackIndex = lua_gettop(L);
 }
 
 
 LUALIB_API char *luaL_buffinitsize (lua_State *L, luaL_Buffer *B, size_t sz) {
   luaL_buffinit(L, B);
-  return prepbuffsize(B, sz, -1);
+  return prepbuffsize(B, sz);
 }
 
 /* }====================================================== */
