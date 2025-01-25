@@ -1,3 +1,8 @@
+if(COMMON_CMAKE_INCLUDED)
+    return()
+else()
+    set(COMMON_CMAKE_INCLUDED TRUE)
+endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")

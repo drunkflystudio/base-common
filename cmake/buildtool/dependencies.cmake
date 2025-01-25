@@ -93,6 +93,10 @@ endmacro()
 # Watcom 10.0a
 
 macro(require_watcom10)
+    string(LENGTH "${TOOLS_DIR}/watcom10" length)
+    if(length GREATER 53)
+        message(FATAL_ERROR "\n=== Watcom 10.0a is unable to handle such long path: ===\n\"${TOOLS_DIR}/watcom10\"\n")
+    endif()
     external_git_repo("${TOOLS_DIR}/watcom10" "https://github.com/thirdpartystuff/win32-watcom10")
     if(WIN32)
         add_PATH("${TOOLS_DIR}/watcom10/binnt")

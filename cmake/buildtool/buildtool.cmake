@@ -1,4 +1,7 @@
 
+if(POLICY CMP0011)
+    cmake_policy(SET CMP0011 NEW)
+endif()
 if(POLICY CMP0054)
     cmake_policy(SET CMP0054 NEW)
 endif()
@@ -12,8 +15,8 @@ endif()
 ######################################################################################################################
 
 set(PROJECT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-get_filename_component(SCRIPT_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-get_filename_component(CMAKE_DIR "${SCRIPT_DIR}" PATH)
+get_filename_component(BUILDTOOL_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+get_filename_component(CMAKE_DIR "${BUILDTOOL_DIR}" PATH)
 get_filename_component(COMMON_DIR "${CMAKE_DIR}" PATH)
 
 set(BUILD_DIR "${PROJECT_DIR}/build")
@@ -23,8 +26,8 @@ set(TOOLS_DIR "${COMMON_DIR}/tools")
 
 include(CMakeParseArguments)
 
-include("${SCRIPT_DIR}/macros.cmake")
-include("${SCRIPT_DIR}/dependencies.cmake")
+include("${BUILDTOOL_DIR}/macros.cmake")
+include("${BUILDTOOL_DIR}/dependencies.cmake")
 
 ######################################################################################################################
 
@@ -185,6 +188,7 @@ if(WATCOM10)
         generate_project(
             EXECUTABLE "tests.exe"
             DIRECTORY "${dir}"
+            GENERATOR "Makefiles"
             BUILD_TYPE "${build_type}"
             TOOLCHAIN "watcom10/_win32"
             )
