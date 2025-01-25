@@ -1,6 +1,5 @@
 
 set(src
-    drunkfly/common.c
     drunkfly/common.h
     drunkfly/vm.c
     drunkfly/vm.h

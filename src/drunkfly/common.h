@@ -19,8 +19,4 @@
 
 typedef unsigned int uint;
 
-void* memAlloc(lua_State* L, size_t size);
-void* memRealloc(lua_State* L, void* old, size_t oldSize, size_t newSize);
-void memFree(lua_State* L, void* old, size_t oldSize);
-
 #endif

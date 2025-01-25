@@ -89,6 +89,61 @@ void* vmGetInitData(lua_State* L)
     return ctx->initData;
 }
 
+void* vmAlloc(lua_State* L, size_t size)
+{
+    void* ptr, *ud;
+    lua_Alloc allocf = lua_getallocf(L, &ud);
+
+    if (size == 0)
+        size = 1;
+
+    ptr = allocf(ud, NULL, 0, size);
+    if (!ptr) {
+        lua_pushliteral(L, "not enough memory");
+        lua_error(L);
+    }
+
+    return ptr;
+}
+
+void* vmRealloc(lua_State* L, void* old, size_t oldSize, size_t newSize)
+{
+    void* ptr, *ud;
+    lua_Alloc allocf = lua_getallocf(L, &ud);
+
+    if (!old)
+        oldSize = 0;
+    else if (oldSize == 0)
+        oldSize = 1;
+
+    if (newSize == 0)
+        newSize = 1;
+
+    ptr = allocf(ud, old, oldSize, newSize);
+    if (!ptr) {
+        lua_pushliteral(L, "not enough memory");
+        lua_error(L);
+    }
+
+    return ptr;
+}
+
+void vmFree(lua_State* L, void* old, size_t oldSize)
+{
+    lua_Alloc allocf;
+    void* ud;
+
+    if (!old)
+        return;
+
+    allocf = lua_getallocf(L, &ud);
+
+    if (oldSize == 0)
+        oldSize = 1;
+
+    allocf(ud, old, oldSize, 0);
+}
+
 static int vmErrorHandler(lua_State* L)
 {
     const char* msg = lua_tostring(L, 1);
