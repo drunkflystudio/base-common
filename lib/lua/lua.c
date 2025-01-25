@@ -19,6 +19,7 @@
 
 #include "lauxlib.h"
 #include "lualib.h"
+#include "lundump.h"
 
 
 #if !defined(LUA_PROGNAME)
@@ -675,6 +676,7 @@ int main (int argc, char **argv) {
   lua_State *L;
   p_luaX_init = luaX_init;
   p_luaY_parser = luaY_parser;
+  p_luaU_undump = luaU_undump;
   L = luaL_newstate();  /* create state */
   if (L == NULL) {
     l_message(argv[0], "cannot create state: not enough memory");

@@ -502,6 +502,7 @@ struct LClosure* luaY_parser(lua_State* L, struct Zio* z, struct Mbuffer* buff, 
 extern void (*p_luaX_init)(lua_State *L);
 extern struct LClosure* (*p_luaY_parser)(lua_State* L, struct Zio* z, struct Mbuffer* buff, struct Dyndata* dyd,
     const char* name, int firstchar);
+extern struct LClosure* (*p_luaU_undump)(lua_State *L, struct Zio* Z, const char* name);
 
 /******************************************************************************
 * Copyright (C) 1994-2024 Lua.org, PUC-Rio.

@@ -201,6 +201,7 @@ int main(int argc, char* argv[])
  if (argc<=0) usage("no input files given");
  p_luaX_init = luaX_init;
  p_luaY_parser = luaY_parser;
+ p_luaU_undump = luaU_undump;
  L=luaL_newstate();
  if (L==NULL) fatal("cannot create state: not enough memory");
  lua_pushcfunction(L,&pmain);

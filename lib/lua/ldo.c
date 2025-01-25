@@ -988,16 +988,18 @@ static void checkmode (lua_State *L, const char *mode, const char *x) {
   }
 }
 
-
 LClosure* (*p_luaY_parser)(lua_State* L, ZIO* z, Mbuffer* buff, Dyndata* dyd, const char* name, int firstchar);
+LClosure* (*p_luaU_undump)(lua_State *L, ZIO* Z, const char* name);
 
 static void f_parser (lua_State *L, void *ud) {
   LClosure *cl;
   struct SParser *p = cast(struct SParser *, ud);
   int c = zgetc(p->z);  /* read first character */
   if (c == LUA_SIGNATURE[0]) {
+    if (!p_luaU_undump)
+      luaD_throw(L, LUA_ERRSYNTAX);
     checkmode(L, p->mode, "binary");
-    cl = luaU_undump(L, p->z, p->name);
+    cl = p_luaU_undump(L, p->z, p->name);
   }
   else {
     if (!p_luaY_parser)

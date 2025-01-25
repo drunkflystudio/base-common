@@ -73,8 +73,6 @@ set(src
     lopnames.h
     lparser.c
     lparser.h
-    lundump.c
-    lundump.h
     )
 
 source_group("Source Files" FILES ${src})
@@ -87,6 +85,27 @@ target_link_libraries(LuaParser LuaCore)
 set_target_properties(LuaParser PROPERTIES
     FOLDER "Libs"
     OUTPUT_NAME "luaparser"
+    )
+
+######################################################################################################################
+## Lua bytecode
+
+set(src
+    ldump.c
+    lundump.c
+    lundump.h
+    )
+
+source_group("Source Files" FILES ${src})
+
+add_library(LuaBytecode STATIC ${src})
+target_compile_definitions(LuaBytecode PRIVATE LAPI_LUA_DUMP)
+target_include_directories(LuaBytecode PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(LuaBytecode LuaCore)
+
+set_target_properties(LuaBytecode PROPERTIES
+    FOLDER "Libs"
+    OUTPUT_NAME "luabytecode"
     )
 
 ######################################################################################################################
@@ -141,7 +160,7 @@ set(src
 source_group("Source Files" FILES ${src})
 
 add_executable(${LuaInterpreter} ${src})
-target_link_libraries(${LuaInterpreter} LuaLibs LuaCore LuaParser)
+target_link_libraries(${LuaInterpreter} LuaLibs LuaCore LuaParser LuaBytecode)
 set_target_properties(${LuaInterpreter} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/.."
     FOLDER "Tools"
@@ -152,14 +171,12 @@ set_target_properties(${LuaInterpreter} PROPERTIES
 
 set(src
     luac.c
-    ldump.c
     )
 
 source_group("Source Files" FILES ${src})
 
 add_executable(${LuaCompiler} ${src})
-target_compile_definitions(${LuaCompiler} PRIVATE LAPI_LUA_DUMP)
-target_link_libraries(${LuaCompiler} LuaCore LuaParser)
+target_link_libraries(${LuaCompiler} LuaCore LuaParser LuaBytecode)
 set_target_properties(${LuaCompiler} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/.."
     FOLDER "Tools"
