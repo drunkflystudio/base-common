@@ -98,14 +98,14 @@ set(src
 
 source_group("Source Files" FILES ${src})
 
-add_library(LuaBytecode STATIC ${src})
-target_compile_definitions(LuaBytecode PRIVATE LAPI_LUA_DUMP)
-target_include_directories(LuaBytecode PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(LuaBytecode LuaCore)
+add_library(LuaDump STATIC ${src})
+target_compile_definitions(LuaDump PRIVATE LAPI_LUA_DUMP)
+target_include_directories(LuaDump PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(LuaDump LuaCore)
 
-set_target_properties(LuaBytecode PROPERTIES
+set_target_properties(LuaDump PROPERTIES
     FOLDER "Libs/Lua"
-    OUTPUT_NAME "luabytecode"
+    OUTPUT_NAME "luadump"
     )
 
 ######################################################################################################################
@@ -160,7 +160,7 @@ set(src
 source_group("Source Files" FILES ${src})
 
 add_executable(${LuaInterpreter} ${src})
-target_link_libraries(${LuaInterpreter} LuaLibs LuaCore LuaParser LuaBytecode)
+target_link_libraries(${LuaInterpreter} LuaLibs LuaCore LuaParser LuaDump)
 set_target_properties(${LuaInterpreter} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/.."
     FOLDER "Tools/Lua"
@@ -176,7 +176,7 @@ set(src
 source_group("Source Files" FILES ${src})
 
 add_executable(${LuaCompiler} ${src})
-target_link_libraries(${LuaCompiler} LuaCore LuaParser LuaBytecode)
+target_link_libraries(${LuaCompiler} LuaCore LuaParser LuaDump)
 set_target_properties(${LuaCompiler} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/.."
     FOLDER "Tools/Lua"
