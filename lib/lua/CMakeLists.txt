@@ -100,7 +100,7 @@ set(src
     ldblib.c
     liolib.c
     lmathlib.c
-    loadlib.c
+    #loadlib.c
     loslib.c
     lstrlib.c
     ltablib.c

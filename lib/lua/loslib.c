@@ -99,6 +99,7 @@
 ** it uses mkstemp.
 ** ===================================================================
 */
+#if 0
 #if !defined(lua_tmpnam)	/* { */
 
 #if defined(LUA_USE_POSIX)	/* { */
@@ -126,6 +127,7 @@
 #endif				/* } */
 
 #endif				/* } */
+#endif
 /* }================================================================== */
 
 
@@ -168,6 +170,7 @@ static int os_rename (lua_State *L) {
 }
 
 
+#if 0
 static int os_tmpname (lua_State *L) {
   char buff[LUA_TMPNAMBUFSIZE];
   int err;
@@ -177,6 +180,7 @@ static int os_tmpname (lua_State *L) {
   lua_pushstring(L, buff);
   return 1;
 }
+#endif
 
 
 static int os_getenv (lua_State *L) {
@@ -415,7 +419,7 @@ static const luaL_Reg syslib[] = {
   {"rename",    os_rename},
   {"setlocale", os_setlocale},
   {"time",      os_time},
-  {"tmpname",   os_tmpname},
+  /*{"tmpname",   os_tmpname},*/
   {NULL, NULL}
 };
 

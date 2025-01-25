@@ -25,6 +25,7 @@
 #include "lua.h"
 
 #include "lauxlib.h"
+#ifndef LAUXLIB_FILE_IO
 
 
 #if !defined(MAX_SIZET)
@@ -242,6 +243,8 @@ LUALIB_API int luaL_error (lua_State *L, const char *fmt, ...) {
   return lua_error(L);
 }
 
+#endif
+#ifdef LAUXLIB_FILE_IO
 
 LUALIB_API int luaL_fileresult (lua_State *L, int stat, const char *fname) {
   int en = errno;  /* calls to Lua API may change this value */
@@ -301,6 +304,8 @@ LUALIB_API int luaL_execresult (lua_State *L, int stat) {
   }
 }
 
+#endif
+#ifndef LAUXLIB_FILE_IO
 /* }====================================================== */
 
 
@@ -702,6 +707,8 @@ LUALIB_API void luaL_unref (lua_State *L, int t, int ref) {
 
 /* }====================================================== */
 
+#endif
+#ifdef LAUXLIB_FILE_IO
 
 /*
 ** {======================================================
@@ -823,6 +830,8 @@ LUALIB_API int luaL_loadfilex (lua_State *L, const char *filename,
   return status;
 }
 
+#endif
+#ifndef LAUXLIB_FILE_IO
 
 typedef struct LoadS {
   const char *s;
@@ -1022,6 +1031,8 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s,
   return lua_tostring(L, -1);
 }
 
+#endif
+#ifdef LAUXLIB_FILE_IO
 
 static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   (void)ud; (void)osize;  /* not used */
@@ -1124,3 +1135,4 @@ LUALIB_API void luaL_checkversion_ (lua_State *L, lua_Number ver, size_t sz) {
                   (LUAI_UACNUMBER)ver, (LUAI_UACNUMBER)v);
 }
 
+#endif

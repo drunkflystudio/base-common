@@ -81,7 +81,7 @@ static void laction (int i) {
 
 
 static void print_usage (const char *badoption) {
-  lua_writestringerror("%s: ", progname);
+  /*lua_writestringerror("%s: ", progname);*/
   if (badoption[1] == 'e' || badoption[1] == 'l')
     lua_writestringerror("'%s' needs argument\n", badoption);
   else
@@ -91,8 +91,6 @@ static void print_usage (const char *badoption) {
   "Available options are:\n"
   "  -e stat   execute string 'stat'\n"
   "  -i        enter interactive mode after executing 'script'\n"
-  "  -l mod    require library 'mod' into global 'mod'\n"
-  "  -l g=mod  require library 'mod' into global 'g'\n"
   "  -v        show version information\n"
   "  -E        ignore environment variables\n"
   "  -W        turn warnings on\n"
@@ -209,6 +207,7 @@ static int dostring (lua_State *L, const char *s, const char *name) {
 }
 
 
+#if 0
 /*
 ** Receives 'globname[=modname]' and runs 'globname = require(modname)'.
 ** If there is no explicit modname and globname contains a '-', cut
@@ -236,6 +235,7 @@ static int dolibrary (lua_State *L, char *globname) {
   }
   return report(L, status);
 }
+#endif
 
 
 /*
@@ -287,8 +287,10 @@ static int collectargs (char **argv, int *first) {
   int args = 0;
   int i;
   if (argv[0] != NULL) {  /* is there a program name? */
+    #if 0
     if (argv[0][0])  /* not empty? */
       progname = argv[0];  /* save it */
+    #endif
   }
   else {  /* no program name */
     *first = -1;
@@ -324,7 +326,6 @@ static int collectargs (char **argv, int *first) {
         break;
       case 'e':
         args |= has_e;  /* FALLTHROUGH */
-      case 'l':  /* both options need an argument */
         if (argv[i][2] == '\0') {  /* no concatenated argument? */
           i++;  /* try next 'argv' */
           if (argv[i] == NULL || argv[i][0] == '-')
@@ -341,7 +342,7 @@ static int collectargs (char **argv, int *first) {
 
 
 /*
-** Processes options 'e' and 'l', which involve running Lua code, and
+** Processes option 'e', which involve running Lua code, and
 ** 'W', which also affects the state.
 ** Returns 0 if some code raises an error.
 */
@@ -351,14 +352,12 @@ static int runargs (lua_State *L, char **argv, int n) {
     int option = argv[i][1];
     lua_assert(argv[i][0] == '-');  /* already checked */
     switch (option) {
-      case 'e':  case 'l': {
+      case 'e': {
         int status;
         char *extra = argv[i] + 2;  /* both options need an argument */
         if (*extra == '\0') extra = argv[++i];
         lua_assert(extra != NULL);
-        status = (option == 'e')
-                 ? dostring(L, extra, "=(command line)")
-                 : dolibrary(L, extra);
+        status = dostring(L, extra, "=(command line)");
         if (status != LUA_OK) return 0;
         break;
       }

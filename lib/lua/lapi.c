@@ -33,9 +33,11 @@
 #ifndef LAPI_LUA_DUMP
 
 
+/*
 const char lua_ident[] =
   "$LuaVersion: " LUA_COPYRIGHT " $"
   "$LuaAuthors: " LUA_AUTHORS " $";
+*/
 
 
 
@@ -1321,12 +1323,14 @@ LUA_API lua_Alloc lua_getallocf (lua_State *L, void **ud) {
 }
 
 
+/*
 LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud) {
   lua_lock(L);
   G(L)->ud = ud;
   G(L)->frealloc = f;
   lua_unlock(L);
 }
+*/
 
 
 void lua_setwarnf (lua_State *L, lua_WarnFunction f, void *ud) {
