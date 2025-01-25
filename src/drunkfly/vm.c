@@ -23,29 +23,6 @@ static void vmCrash(lua_State* L)
     longjmp(ctx->crash, 1);
 }
 
-static int vmCheckError(lua_State* L, int status)
-{
-    if (status != LUA_OK) {
-        VMStartupContext* ctx = (VMStartupContext*)(G(L)->ud);
-
-        const char* msg = lua_tostring(L, -1);
-        if (!msg) {
-            lua_pop(L, 1);
-            msg = lua_pushfstring(L, "(%s)", g_ErrorNotString);
-        }
-
-        if (ctx->logger) {
-            const char* fmt = lua_pushfstring(L, "VM error: %s", msg);
-            ctx->logger(VM_ERROR, fmt);
-            lua_pop(L, 1);
-        }
-
-        lua_pop(L, 1);
-    }
-
-    return status;
-}
-
 static int vmMain(lua_State* L)
 {
     VMStartupContext* ctx = (VMStartupContext*)(G(L)->ud);
@@ -148,6 +125,29 @@ void vmFree(lua_State* L, void* old, size_t oldSize)
         oldSize = 1;
 
     allocf(ud, old, oldSize, 0);
+}
+
+int vmCheckError(lua_State* L, int status)
+{
+    if (status != LUA_OK) {
+        VMStartupContext* ctx = (VMStartupContext*)(G(L)->ud);
+
+        const char* msg = lua_tostring(L, -1);
+        if (!msg) {
+            lua_pop(L, 1);
+            msg = lua_pushfstring(L, "(%s)", g_ErrorNotString);
+        }
+
+        if (ctx->logger) {
+            const char* fmt = lua_pushfstring(L, "VM error:\n%s", msg);
+            ctx->logger(VM_ERROR, fmt);
+            lua_pop(L, 1);
+        }
+
+        lua_pop(L, 1);
+    }
+
+    return status;
 }
 
 static int vmErrorHandler(lua_State* L)

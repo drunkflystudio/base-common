@@ -18,6 +18,7 @@ void* vmAlloc(lua_State* L, size_t size);
 void* vmRealloc(lua_State* L, void* old, size_t oldSize, size_t newSize);
 void vmFree(lua_State* L, void* old, size_t oldSize);
 
+int vmCheckError(lua_State* L, int status);
 int vmProtectedCall(lua_State* L, int nargs, int nret);
 
 void vmInterrupt(lua_State* L);
