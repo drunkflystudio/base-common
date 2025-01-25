@@ -111,7 +111,7 @@ static int utflen (lua_State *L) {
       lua_pushinteger(L, posi + 1);  /* ... and current position */
       return 2;
     }
-    posi = s1 - s;
+    posi = (lua_Integer)(s1 - s);
     n++;
   }
   lua_pushinteger(L, n);
@@ -188,7 +188,7 @@ static int byteoffset (lua_State *L) {
   size_t len;
   const char *s = luaL_checklstring(L, 1, &len);
   lua_Integer n  = luaL_checkinteger(L, 2);
-  lua_Integer posi = (n >= 0) ? 1 : len + 1;
+  lua_Integer posi = (n >= 0) ? 1 : (lua_Integer)(len + 1);
   posi = u_posrelat(luaL_optinteger(L, 3, posi), len);
   luaL_argcheck(L, 1 <= posi && --posi <= (lua_Integer)len, 3,
                    "position out of bounds");

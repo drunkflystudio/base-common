@@ -76,16 +76,10 @@ typedef signed char ls_byte;
 ** value. (In strict ISO C this may cause undefined behavior, but no
 ** actual machine seems to bother.)
 */
-#if !defined(LUA_USE_C89) && defined(__STDC_VERSION__) && \
-    __STDC_VERSION__ >= 199901L
-#include <stdint.h>
 #if defined(UINTPTR_MAX)  /* even in C99 this type is optional */
 #define L_P2I	uintptr_t
 #else  /* no 'intptr'? */
 #define L_P2I	uintmax_t  /* use the largest available integer */
-#endif
-#else  /* C89 option */
-#define L_P2I	size_t
 #endif
 
 #define point2uint(p)	((unsigned int)((L_P2I)(p) & UINT_MAX))
@@ -181,7 +175,7 @@ typedef LUAI_UACINT l_uacInt;
 /*
 ** Inline functions
 */
-#if !defined(LUA_USE_C89)
+#if !defined(LUA_USE_C89) && !defined(__BORLANDC__)
 #define l_inline	inline
 #elif defined(__GNUC__)
 #define l_inline	__inline__

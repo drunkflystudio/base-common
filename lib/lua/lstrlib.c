@@ -207,6 +207,7 @@ static int str_char (lua_State *L) {
 }
 
 
+#if 0
 /*
 ** Buffer to store the result of 'string.dump'. It must be initialized
 ** after the call to 'lua_dump', to ensure that the function is on the
@@ -241,6 +242,7 @@ static int str_dump (lua_State *L) {
   luaL_pushresult(&state.B);
   return 1;
 }
+#endif
 
 
 
@@ -713,7 +715,7 @@ static size_t get_onecapture (MatchState *ms, int i, const char *s,
     if (l_unlikely(capl == CAP_UNFINISHED))
       luaL_error(ms->L, "unfinished capture");
     else if (capl == CAP_POSITION)
-      lua_pushinteger(ms->L, (ms->capture[i].init - ms->src_init) + 1);
+      lua_pushinteger(ms->L, (lua_Integer)((ms->capture[i].init - ms->src_init) + 1));
     return capl;
   }
 }
@@ -784,8 +786,8 @@ static int str_find_aux (lua_State *L, int find) {
     /* do a plain search */
     const char *s2 = lmemfind(s + init, ls - init, p, lp);
     if (s2) {
-      lua_pushinteger(L, (s2 - s) + 1);
-      lua_pushinteger(L, (s2 - s) + lp);
+      lua_pushinteger(L, (lua_Integer)((s2 - s) + 1));
+      lua_pushinteger(L, (lua_Integer)((s2 - s) + lp));
       return 2;
     }
   }
@@ -802,8 +804,8 @@ static int str_find_aux (lua_State *L, int find) {
       reprepstate(&ms);
       if ((res=match(&ms, s1, p)) != NULL) {
         if (find) {
-          lua_pushinteger(L, (s1 - s) + 1);  /* start */
-          lua_pushinteger(L, res - s);   /* end */
+          lua_pushinteger(L, (lua_Integer)((s1 - s) + 1));  /* start */
+          lua_pushinteger(L, (lua_Integer)(res - s));   /* end */
           return push_captures(&ms, NULL, 0) + 2;
         }
         else
@@ -945,7 +947,7 @@ static int str_gsub (lua_State *L) {
   const char *p = luaL_checklstring(L, 2, &lp);  /* pattern */
   const char *lastmatch = NULL;  /* end of last match */
   int tr = lua_type(L, 3);  /* replacement type */
-  lua_Integer max_s = luaL_optinteger(L, 4, srcl + 1);  /* max replacements */
+  lua_Integer max_s = luaL_optinteger(L, 4, (lua_Integer)(srcl + 1));  /* max replacements */
   int anchor = (*p == '^');
   lua_Integer n = 0;  /* replacement count */
   int changed = 0;  /* change flag */
@@ -1820,7 +1822,7 @@ static int str_unpack (lua_State *L) {
     }
     pos += size;
   }
-  lua_pushinteger(L, pos + 1);  /* next position */
+  lua_pushinteger(L, (lua_Integer)(pos + 1));  /* next position */
   return n + 1;
 }
 
@@ -1830,7 +1832,7 @@ static int str_unpack (lua_State *L) {
 static const luaL_Reg strlib[] = {
   {"byte", str_byte},
   {"char", str_char},
-  {"dump", str_dump},
+  /*{"dump", str_dump},*/
   {"find", str_find},
   {"format", str_format},
   {"gmatch", gmatch},

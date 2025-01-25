@@ -702,7 +702,11 @@ void luaV_objlen (lua_State *L, StkId ra, const TValue *rb) {
       return;
     }
     case LUA_VLNGSTR: {
-      setivalue(s2v(ra), tsvalue(rb)->u.lnglen);
+      size_t len = tsvalue(rb)->u.lnglen;
+      lua_Integer li = (lua_Integer)len;
+      if (li < 0 || (size_t)li != len)
+        luaG_runerror(L, "string is too long");
+      setivalue(s2v(ra), li);
       return;
     }
     default: {  /* try metamethod */

@@ -352,11 +352,11 @@ int luaO_utf8esc (char *buff, unsigned long x) {
 /*
 ** Convert a number object to a string, adding it to a buffer
 */
-static int tostringbuff (TValue *obj, char *buff) {
+static int tostringbuff (lua_State* L, TValue *obj, char *buff) {
   int len;
   lua_assert(ttisnumber(obj));
   if (ttisinteger(obj))
-    len = lua_integer2str(buff, MAXNUMBER2STR, ivalue(obj));
+    len = lua_integer2str(L, buff, MAXNUMBER2STR, ivalue(obj));
   else {
     len = lua_number2str(buff, MAXNUMBER2STR, fltvalue(obj));
     if (buff[strspn(buff, "-0123456789")] == '\0') {  /* looks like an int? */
@@ -373,7 +373,7 @@ static int tostringbuff (TValue *obj, char *buff) {
 */
 void luaO_tostring (lua_State *L, TValue *obj) {
   char buff[MAXNUMBER2STR];
-  int len = tostringbuff(obj, buff);
+  int len = tostringbuff(L, obj, buff);
   setsvalue(L, obj, luaS_newlstr(L, buff, len));
 }
 
@@ -468,7 +468,7 @@ static void addstr2buff (BuffFS *buff, const char *str, size_t slen) {
 */
 static void addnum2buff (BuffFS *buff, TValue *num) {
   char *numbuff = getbuff(buff, MAXNUMBER2STR);
-  int len = tostringbuff(num, numbuff);  /* format number into 'numbuff' */
+  int len = tostringbuff(buff->L, num, numbuff);  /* format number into 'numbuff' */
   addsize(buff, len);
 }
 
@@ -518,7 +518,7 @@ const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
         const int sz = 3 * sizeof(void*) + 8; /* enough space for '%p' */
         char *bf = getbuff(&buff, sz);
         void *p = va_arg(argp, void *);
-        int len = lua_pointer2str(bf, sz, p);
+        int len = lua_pointer2str(L, bf, sz, p);
         addsize(&buff, len);
         break;
       }

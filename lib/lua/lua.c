@@ -372,6 +372,7 @@ static int runargs (lua_State *L, char **argv, int n) {
 
 
 static int handle_luainit (lua_State *L) {
+  #if 0
   const char *name = "=" LUA_INITVARVERSION;
   const char *init = getenv(name + 1);
   if (init == NULL) {
@@ -383,6 +384,8 @@ static int handle_luainit (lua_State *L) {
     return dofile(L, init+1);
   else
     return dostring(L, init, name);
+  #endif
+  return LUA_OK;
 }
 
 

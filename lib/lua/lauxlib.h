@@ -41,7 +41,7 @@ typedef struct luaL_Reg {
 } luaL_Reg;
 
 
-#define LUAL_NUMSIZES	(sizeof(lua_Integer)*16 + sizeof(lua_Number))
+#define LUAL_NUMSIZES	(0x40000000 + sizeof(lua_Integer)*16 + sizeof(lua_Number))
 
 LUALIB_API void (luaL_checkversion_) (lua_State *L, lua_Number ver, size_t sz);
 #define luaL_checkversion(L)  \

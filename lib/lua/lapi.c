@@ -30,6 +30,7 @@
 #include "lundump.h"
 #include "lvm.h"
 
+#ifndef LAPI_LUA_DUMP
 
 
 const char lua_ident[] =
@@ -423,7 +424,7 @@ LUA_API const char *lua_tolstring (lua_State *L, int idx, size_t *len) {
 }
 
 
-LUA_API lua_Unsigned lua_rawlen (lua_State *L, int idx) {
+LUA_API size_t lua_rawlen (lua_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   switch (ttypetag(o)) {
     case LUA_VSHRSTR: return tsvalue(o)->shrlen;
@@ -1106,6 +1107,8 @@ LUA_API int lua_load (lua_State *L, lua_Reader reader, void *data,
   return status;
 }
 
+#endif
+#ifdef LAPI_LUA_DUMP
 
 LUA_API int lua_dump (lua_State *L, lua_Writer writer, void *data, int strip) {
   int status;
@@ -1121,6 +1124,8 @@ LUA_API int lua_dump (lua_State *L, lua_Writer writer, void *data, int strip) {
   return status;
 }
 
+#endif
+#ifndef LAPI_LUA_DUMP
 
 LUA_API int lua_status (lua_State *L) {
   return L->status;
@@ -1461,3 +1466,4 @@ LUA_API void lua_upvaluejoin (lua_State *L, int fidx1, int n1,
 }
 
 
+#endif
