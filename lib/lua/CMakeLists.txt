@@ -50,7 +50,7 @@ target_compile_definitions(LuaCore PUBLIC "$<$<CONFIG:Debug>:LUA_USE_APICHECK>")
 target_include_directories(LuaCore PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set_target_properties(LuaCore PROPERTIES
-    FOLDER "Libs"
+    FOLDER "Libs/Lua"
     OUTPUT_NAME "luacore"
     )
 
@@ -83,7 +83,7 @@ target_compile_definitions(LuaParser PRIVATE LAUXLIB_FILE_IO)
 target_link_libraries(LuaParser LuaCore)
 
 set_target_properties(LuaParser PROPERTIES
-    FOLDER "Libs"
+    FOLDER "Libs/Lua"
     OUTPUT_NAME "luaparser"
     )
 
@@ -104,7 +104,7 @@ target_include_directories(LuaBytecode PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(LuaBytecode LuaCore)
 
 set_target_properties(LuaBytecode PROPERTIES
-    FOLDER "Libs"
+    FOLDER "Libs/Lua"
     OUTPUT_NAME "luabytecode"
     )
 
@@ -132,7 +132,7 @@ target_include_directories(LuaLibs PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(LuaLibs LuaCore)
 
 set_target_properties(LuaLibs PROPERTIES
-    FOLDER "Libs"
+    FOLDER "Libs/Lua"
     OUTPUT_NAME "lualibs"
     )
 
@@ -163,7 +163,7 @@ add_executable(${LuaInterpreter} ${src})
 target_link_libraries(${LuaInterpreter} LuaLibs LuaCore LuaParser LuaBytecode)
 set_target_properties(${LuaInterpreter} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/.."
-    FOLDER "Tools"
+    FOLDER "Tools/Lua"
     OUTPUT_NAME "lua"
     )
 
@@ -179,6 +179,6 @@ add_executable(${LuaCompiler} ${src})
 target_link_libraries(${LuaCompiler} LuaCore LuaParser LuaBytecode)
 set_target_properties(${LuaCompiler} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/.."
-    FOLDER "Tools"
+    FOLDER "Tools/Lua"
     OUTPUT_NAME "luac"
     )
