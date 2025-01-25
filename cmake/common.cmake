@@ -23,6 +23,7 @@ include_directories("${ROOT_DIR}/lib/pstdint")
 ######################################################################################################################
 
 include("${ROOT_DIR}/cmake/flags.cmake")
+include("${ROOT_DIR}/cmake/tests.cmake")
 
 ######################################################################################################################
 
@@ -58,32 +59,6 @@ endmacro()
 add_subdirectory("${ROOT_DIR}/lib" common_lib)
 add_subdirectory("${ROOT_DIR}/tests" common_tests)
 
-######################################################################################################################
-## Run base tests
-
-if(NOT CMAKE_CROSSCOMPILING OR (OLD_BORLAND AND WIN32) OR (OLD_WATCOM AND WIN32))
-
-set(tests_run "${CMAKE_CURRENT_BINARY_DIR}/t_base.run")
-source_group("Generated Files" FILES "${tests_run}")
-
-add_custom_command(OUTPUT "${tests_run}"
-    COMMAND BaseTests "${tests_run}"
-    DEPENDS BaseTests
-    COMMENT "Running base tests"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-    )
-
-add_custom_target(RunBaseTests
-    DEPENDS "${tests_run}"
-    SOURCES "${tests_run}"
-    )
-
-else()
-add_custom_target(RunBaseTests)
-endif()
-
-set_target_properties(RunBaseTests PROPERTIES FOLDER "CMake")
-
-######################################################################################################################
+register_test_runner(BaseTests t_base)
 
 add_subdirectory("${ROOT_DIR}/src" common_src)

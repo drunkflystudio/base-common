@@ -3,6 +3,8 @@
 #include <string.h>
 #include <errno.h>
 
+#define RUN_FILE_NAME "t_base.run"
+
 #ifdef __BORLANDC__
 #pragma option -w-ccc
 #pragma option -w-sig
@@ -43,7 +45,7 @@ int main()
     char buf[256];
     int r;
 
-    remove("t_base.run");
+    remove(RUN_FILE_NAME);
 
     /* pstdint.h */
 
@@ -120,9 +122,9 @@ int main()
     /* done */
 
     if (success) {
-        FILE* f = fopen("t_base.run", "w");
+        FILE* f = fopen(RUN_FILE_NAME, "w");
         if (!f) {
-            fprintf(stderr, "can't write \"%s\": %s\n", "t_base.run", strerror(errno));
+            fprintf(stderr, "can't write \"%s\": %s\n", RUN_FILE_NAME, strerror(errno));
             return EXIT_FAILURE;
         }
         fwrite("1", 1, 1, f);

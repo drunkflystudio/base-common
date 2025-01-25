@@ -109,8 +109,7 @@ set(src
 source_group("Source Files" FILES ${src})
 
 add_library(LuaLibs STATIC ${src})
-target_include_directories(LuaLibs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
-target_include_directories(LuaLibs PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/lua")
+target_include_directories(LuaLibs PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(LuaLibs LuaCore)
 
 set_target_properties(LuaLibs PROPERTIES

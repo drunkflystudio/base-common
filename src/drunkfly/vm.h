@@ -10,7 +10,7 @@ typedef enum VMMSGTYPE {
 
 typedef int (*VMINITPROC)(lua_State* L);
 typedef int (*VMMAINPROC)(lua_State* L);
-typedef int (*VMLOGGERPROC)(VMMSGTYPE type, const char* message);
+typedef void (*VMLOGGERPROC)(VMMSGTYPE type, const char* message);
 
 void* vmGetInitData(lua_State* L);
 
