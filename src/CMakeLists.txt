@@ -1,19 +1,14 @@
 
-add_subdirectory(tests)
-
-######################################################################################################################
-## Run tests
-
-if(NOT CMAKE_CROSSCOMPILING OR (OLD_BORLAND AND WIN32) OR (OLD_WATCOM AND WIN32))
-
-set(tests_run "${CMAKE_CURRENT_BINARY_DIR}/tests.run")
-source_group("Generated Files" FILES "${tests_run}")
-
-add_custom_command(OUTPUT "${tests_run}"
-    COMMAND CompilerTests "${tests_run}"
-    DEPENDS CompilerTests
-    COMMENT "Running base tests"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+set(src
+    drunkfly/common.c
+    drunkfly/common.h
     )
 
-endif()
+source_group("Source Files\\drunkfly" FILES ${src})
+add_library(FlyCommon STATIC ${src})
+
+set_target_properties(FlyCommon PROPERTIES FOLDER "Libs")
+target_include_directories(FlyCommon PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(FlyCommon PUBLIC LuaCore)
+
+add_dependencies(FlyCommon RunBaseTests)

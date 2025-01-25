@@ -46,7 +46,7 @@ if(BORLAND_4_5)
     foreach(build_type ${build_types})
         set(dir "win32/borlnd45/${build_type}")
         generate_project(
-            EXECUTABLE "tests.exe"
+            EXECUTABLE "t_base.exe"
             DIRECTORY "${dir}"
             GENERATOR "Makefiles"
             BUILD_TYPE "${build_type}"
@@ -67,7 +67,7 @@ if(MINGW810_32)
     foreach(build_type ${build_types})
         set(dir "win32/mingw/${build_type}")
         generate_project(
-            EXECUTABLE "tests.exe"
+            EXECUTABLE "t_base.exe"
             DIRECTORY "${dir}"
             BUILD_TYPE "${build_type}"
             )
@@ -86,7 +86,7 @@ if(MINGW810_64)
     foreach(build_type ${build_types})
         set(dir "win64/mingw/${build_type}")
         generate_project(
-            EXECUTABLE "tests.exe"
+            EXECUTABLE "t_base.exe"
             DIRECTORY "${dir}"
             BUILD_TYPE "${build_type}"
             )
@@ -102,7 +102,7 @@ if(MSVC2022_32)
     require_win32_host("MSVC2022_32")
     set(dir "win32/msvc2022")
     generate_project(
-        EXECUTABLE "%CFG%/tests.exe"
+        EXECUTABLE "%CFG%/t_base.exe"
         DIRECTORY "${dir}"
         GENERATOR "Visual Studio 17 2022"
         ARCHITECTURE "Win32"
@@ -125,7 +125,7 @@ if(MSVC2022_64)
     require_win32_host("MSVC2022_64")
     set(dir "win64/msvc2022")
     generate_project(
-        EXECUTABLE "%CFG%/tests.exe"
+        EXECUTABLE "%CFG%/t_base.exe"
         DIRECTORY "${dir}"
         GENERATOR "Visual Studio 17 2022"
         ARCHITECTURE "x64"
@@ -151,7 +151,7 @@ if(LINUX64)
         foreach(build_type ${build_types})
             set(dir "linux64/${build_type}")
             generate_project(
-                EXECUTABLE "tests"
+                EXECUTABLE "t_base"
                 DIRECTORY "${dir}"
                 BUILD_TYPE "${build_type}"
                 TOOLCHAIN "clang350_linux64"
@@ -173,7 +173,7 @@ if(HTML5)
     foreach(build_type ${build_types})
         set(dir "html5/${build_type}")
         generate_project(
-            EXECUTABLE "tests.wasm"
+            EXECUTABLE "t_base.wasm"
             DIRECTORY "${dir}"
             BUILD_TYPE "${build_type}"
             TOOLCHAIN "${EMSCRIPTEN}/cmake/Modules/Platform/Emscripten.cmake"
@@ -193,7 +193,7 @@ if(WATCOM10)
     foreach(build_type ${build_types})
         set(dir "win32/watcom10/${build_type}")
         generate_project(
-            EXECUTABLE "tests.exe"
+            EXECUTABLE "t_base.exe"
             DIRECTORY "${dir}"
             GENERATOR "Makefiles"
             BUILD_TYPE "${build_type}"
