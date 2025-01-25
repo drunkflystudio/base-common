@@ -490,6 +490,18 @@ struct lua_Debug {
 
 /* }====================================================================== */
 
+struct Dyndata;
+struct Zio;
+struct LClosure;
+struct Mbuffer;
+
+void luaX_init(lua_State *L);
+struct LClosure* luaY_parser(lua_State* L, struct Zio* z, struct Mbuffer* buff, struct Dyndata* dyd,
+    const char* name, int firstchar);
+
+extern void (*p_luaX_init)(lua_State *L);
+extern struct LClosure* (*p_luaY_parser)(lua_State* L, struct Zio* z, struct Mbuffer* buff, struct Dyndata* dyd,
+    const char* name, int firstchar);
 
 /******************************************************************************
 * Copyright (C) 1994-2024 Lua.org, PUC-Rio.

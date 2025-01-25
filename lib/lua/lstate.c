@@ -225,6 +225,8 @@ static void init_registry (lua_State *L, global_State *g) {
 }
 
 
+void (*p_luaX_init)(lua_State *L);
+
 /*
 ** open parts of the state that may cause memory-allocation errors.
 */
@@ -235,7 +237,8 @@ static void f_luaopen (lua_State *L, void *ud) {
   init_registry(L, g);
   luaS_init(L);
   luaT_init(L);
-  luaX_init(L);
+  if (p_luaX_init)
+    p_luaX_init(L);
   g->gcstp = 0;  /* allow gc */
   setnilvalue(&g->nilvalue);  /* now state is complete */
   luai_userstateopen(L);

@@ -989,6 +989,8 @@ static void checkmode (lua_State *L, const char *mode, const char *x) {
 }
 
 
+LClosure* (*p_luaY_parser)(lua_State* L, ZIO* z, Mbuffer* buff, Dyndata* dyd, const char* name, int firstchar);
+
 static void f_parser (lua_State *L, void *ud) {
   LClosure *cl;
   struct SParser *p = cast(struct SParser *, ud);
@@ -998,8 +1000,10 @@ static void f_parser (lua_State *L, void *ud) {
     cl = luaU_undump(L, p->z, p->name);
   }
   else {
+    if (!p_luaY_parser)
+      luaD_throw(L, LUA_ERRSYNTAX);
     checkmode(L, p->mode, "text");
-    cl = luaY_parser(L, p->z, &p->buff, &p->dyd, p->name, c);
+    cl = p_luaY_parser(L, p->z, &p->buff, &p->dyd, p->name, c);
   }
   lua_assert(cl->nupvalues == cl->p->sizeupvalues);
   luaF_initupvals(L, cl);
