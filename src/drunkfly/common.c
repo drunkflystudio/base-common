@@ -11,7 +11,7 @@ void* memAlloc(lua_State* L, size_t size)
 
     ptr = allocf(ud, NULL, 0, size);
     if (!ptr) {
-        lua_pushliteral(L, "out of memory.");
+        lua_pushliteral(L, "not enough memory");
         lua_error(L);
     }
 
@@ -33,7 +33,7 @@ void* memRealloc(lua_State* L, void* old, size_t oldSize, size_t newSize)
 
     ptr = allocf(ud, old, oldSize, newSize);
     if (!ptr) {
-        lua_pushliteral(L, "out of memory.");
+        lua_pushliteral(L, "not enough memory");
         lua_error(L);
     }
 

@@ -2,6 +2,8 @@
 set(src
     drunkfly/common.c
     drunkfly/common.h
+    drunkfly/vm.c
+    drunkfly/vm.h
     )
 
 source_group("Source Files\\drunkfly" FILES ${src})
