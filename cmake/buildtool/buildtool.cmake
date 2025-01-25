@@ -29,6 +29,13 @@ include(CMakeParseArguments)
 include("${BUILDTOOL_DIR}/macros.cmake")
 include("${BUILDTOOL_DIR}/dependencies.cmake")
 
+set(EXTRA_CMAKE_OPTIONS)
+if(DEPENDENCIES)
+    foreach(dep ${DEPENDENCIES})
+        include("${dep}")
+    endforeach()
+endif()
+
 ######################################################################################################################
 
 if(BORLAND_4_5)

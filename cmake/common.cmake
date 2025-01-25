@@ -40,3 +40,6 @@ macro(maybe_write_file file contents)
         file(WRITE "${file}" "${contents}")
     endif()
 endmacro()
+
+add_subdirectory("${ROOT_DIR}/lib" common_lib)
+add_subdirectory("${ROOT_DIR}/src" common_src)
