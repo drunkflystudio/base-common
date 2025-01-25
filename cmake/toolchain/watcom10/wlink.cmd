@@ -18,4 +18,5 @@ set "args=!args! !f!"
 shift
 goto loop
 :end
-"%WATCOM%\binnt\wlink" @%WATCOM%\binnt\wlink.lnk %args% || exit /B 1
+rem @%WATCOM%\binnt\wlink.lnk
+"%WATCOM%\binnt\wlink" %args% || exit /B 1
