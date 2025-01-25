@@ -14,6 +14,8 @@
     typedef struct X X; \
     struct X
 
+struct lua_State;
+
 #define lua_State \
     struct lua_State
 

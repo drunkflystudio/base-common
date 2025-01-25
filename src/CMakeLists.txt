@@ -1,4 +1,6 @@
 
+enable_warnings()
+
 set(src
     drunkfly/common.h
     drunkfly/vm.c

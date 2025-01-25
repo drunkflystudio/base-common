@@ -17,6 +17,12 @@ STRUCT(VMStartupContext) {
 static const char g_ErrorNotString[] = "error object is not a string";
 static const char g_PanicPrefix[] = "unhandled exception: ";
 
+static void vmCrash(lua_State* L)
+{
+    VMStartupContext* ctx = (VMStartupContext*)(G(L)->ud);
+    longjmp(ctx->crash, 1);
+}
+
 static int vmCheckError(lua_State* L, int status)
 {
     if (status != LUA_OK) {
@@ -79,7 +85,7 @@ static int vmPanic(lua_State* L)
         ctx->logger(VM_FATAL, ctx->tempBuffer);
     }
 
-    longjmp(ctx->crash, 1);
+    vmCrash(L);
     return 0;
 }
 
