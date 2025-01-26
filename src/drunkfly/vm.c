@@ -5,6 +5,10 @@
 #include <string.h>
 #include <setjmp.h>
 
+#ifdef _MSC_VER
+#pragma warning(disable:4702) /* unreachable code */
+#endif
+
 STRUCT(VMStartupContext) {
     char tempBuffer[1024];
     void* initData;
