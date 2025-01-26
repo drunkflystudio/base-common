@@ -1,6 +1,15 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5...3.31)
 project(Common)
 
-include(cmake/common.cmake)
+# If this line fails, you are building this project wrong.
+# Clone <https://github.com/drunkflystudio/drunkflystudio> and follow instructions there.
+include(../_cmake/common.cmake)
 
-set_directory_properties(PROPERTIES VS_STARTUP_PROJECT "BaseTests")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib/pstdint")
+
+add_subdirectory(lib)
+add_subdirectory(tests)
+
+register_test_runner(BaseTests t_base)
+
+add_subdirectory(src)
