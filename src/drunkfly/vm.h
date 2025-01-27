@@ -4,6 +4,7 @@
 #include <drunkfly/common.h>
 
 typedef enum VMMSGTYPE {
+    VM_WARN,
     VM_ERROR,
     VM_FATAL
 } VMMSGTYPE;

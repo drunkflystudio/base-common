@@ -1,8 +1,10 @@
 #include <drunkfly/vm.h>
+#include <assert.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include <lstate.h>
 #include <string.h>
+#include <stdlib.h>
 #include <setjmp.h>
 
 #ifdef _MSC_VER
@@ -16,6 +18,7 @@ STRUCT(VMStartupContext) {
     VMMAINPROC entry;
     VMLOGGERPROC logger;
     jmp_buf crash;
+    size_t tempBufferPosition;
 };
 
 static const char g_ErrorNotString[] = "error object is not a string";
@@ -30,6 +33,8 @@ static void vmCrash(lua_State* L)
 static int vmMain(lua_State* L)
 {
     VMStartupContext* ctx = (VMStartupContext*)(G(L)->ud);
+
+    luaL_checkversion(L);
 
     if (ctx->init) {
         lua_pushcfunction(L, ctx->init);
@@ -194,31 +199,119 @@ void vmInterrupt(lua_State* L)
     lua_sethook(L, vmStopHook, flag, 1);
 }
 
+STRUCT(MemBlock) {
+    size_t size;
+    char payload[1];
+};
+
+static void* vmAllocator(void* ud, void* ptr, size_t osize, size_t nsize)
+{
+  #ifdef NDEBUG
+    UNUSED(osize);
+    UNUSED(ud);
+    if (nsize != 0)
+        return realloc(ptr, nsize);
+    else {
+        free(ptr);
+        return NULL;
+    }
+  #else
+    MemBlock* mb = NULL;
+    UNUSED(ud);
+
+    if (ptr == NULL) {
+        assert(osize < 16);  /* zero or tag */
+    } else {
+        assert(osize != 0);
+        mb = (MemBlock*)((char*)ptr - offsetof(MemBlock, payload));
+        assert(mb->size == osize);
+    }
+
+    if (nsize != 0) {
+        mb = (MemBlock*)realloc(mb, offsetof(MemBlock, payload) + nsize);
+        if (mb)
+            mb->size = nsize;
+        return mb->payload;
+    } else {
+        if (osize == 0)
+            assert(mb == NULL);
+        else {
+            assert(mb != NULL);
+            free(mb);
+        }
+        return NULL;
+    }
+  #endif
+}
+
+static void vmTempBufferFlush(VMStartupContext* ctx)
+{
+    ctx->tempBuffer[ctx->tempBufferPosition] = 0;
+    ctx->tempBufferPosition = 0;
+    if (ctx->logger)
+        ctx->logger(VM_WARN, ctx->tempBuffer);
+}
+
+static void vmTempBufferAppend(VMStartupContext* ctx, const char* message)
+{
+    while (*message) {
+        if (ctx->tempBufferPosition >= sizeof(ctx->tempBuffer) - 1)
+            vmTempBufferFlush(ctx);
+        ctx->tempBuffer[ctx->tempBufferPosition++] = *message++;
+    }
+}
+
+static void vmWarning(void* ud, const char* message, int tocont);
+
+static void vmWarningContinue(void* ud, const char* message, int tocont)
+{
+    lua_State* L = (lua_State*)ud;
+    VMStartupContext* ctx = (VMStartupContext*)(G(L)->ud);
+    vmTempBufferAppend(ctx, message);
+    if (tocont)
+        lua_setwarnf(L, vmWarningContinue, L);
+    else {
+        vmTempBufferFlush(ctx);
+        lua_setwarnf(L, vmWarning, L);
+    }
+}
+
+static void vmWarning(void* ud, const char* message, int tocont)
+{
+    lua_State* L = (lua_State*)ud;
+    VMStartupContext* ctx = (VMStartupContext*)(G(L)->ud);
+    ctx->tempBufferPosition = 0;
+    vmWarningContinue(ud, message, tocont);
+}
+
 bool vmRun(VMINITPROC init, VMMAINPROC entry, VMLOGGERPROC logger, void* initData)
 {
+    lua_State* volatile L = NULL;
     VMStartupContext ctx;
-    lua_State* volatile L;
     int status;
 
-    L = luaL_newstate();
+    ctx.initData = initData;
+    ctx.init = init;
+    ctx.entry = entry;
+    ctx.logger = logger;
+    ctx.tempBufferPosition = 0;
+
+    if (setjmp(ctx.crash) != 0) {
+        if (L)
+            lua_close(L);
+        return false;
+    }
+
+    L = lua_newstate(vmAllocator, &ctx);
     if (!L) {
         if (logger)
             logger(VM_FATAL, "unable to initialize VM.");
         return false;
     }
 
-    ctx.initData = initData;
-    ctx.init = init;
-    ctx.entry = entry;
-    ctx.logger = logger;
-
-    if (setjmp(ctx.crash) != 0) {
-        lua_close(L);
-        return false;
-    }
-
-    G(L)->ud = &ctx;
+    assert(G(L)->ud == &ctx);
     lua_atpanic(L, vmPanic);
+    lua_setwarnf(L, vmWarning, L);
 
     lua_gc(L, LUA_GCSTOP);
 
