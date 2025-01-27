@@ -34,7 +34,7 @@ static const char *const HOOKKEY = "_HOOKKEY";
 */
 static void checkstack (lua_State *L, lua_State *L1, int n) {
   if (l_unlikely(L != L1 && !lua_checkstack(L1, n)))
-    luaL_error(L, "stack overflow");
+    luaL_error(L, luastr_stack_overflow);
 }
 
 
@@ -165,7 +165,7 @@ static int db_getinfo (lua_State *L) {
     }
   }
   if (!lua_getinfo(L1, options, &ar))
-    return luaL_argerror(L, arg+2, "invalid option");
+    return luaL_argerror(L, arg+2, luastr_invalid_option);
   lua_newtable(L);  /* table to collect results */
   if (strchr(options, 'S')) {
     lua_pushlstring(L, ar.source, ar.srclen);
@@ -322,7 +322,7 @@ static int db_upvaluejoin (lua_State *L) {
 */
 static void hookf (lua_State *L, lua_Debug *ar) {
   static const char *const hooknames[] =
-    {"call", "return", "line", "count", "tail call"};
+    {luastr_call, "return", "line", "count", "tail call"};
   lua_getfield(L, LUA_REGISTRYINDEX, HOOKKEY);
   lua_pushthread(L);
   if (lua_rawget(L, -2) == LUA_TFUNCTION) {  /* is there a hook function? */

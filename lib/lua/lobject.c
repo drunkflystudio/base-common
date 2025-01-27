@@ -359,7 +359,7 @@ static int tostringbuff (lua_State* L, TValue *obj, char *buff) {
     len = lua_integer2str(L, buff, MAXNUMBER2STR, ivalue(obj));
   else {
     len = lua_number2str(buff, MAXNUMBER2STR, fltvalue(obj));
-    if (buff[strspn(buff, "-0123456789")] == '\0') {  /* looks like an int? */
+    if (buff[strspn(buff, luastr_hex)] == '\0') {  /* looks like an int? */
       buff[len++] = lua_getlocaledecpoint();
       buff[len++] = '0';  /* adds '.0' to result */
     }
@@ -533,7 +533,7 @@ const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
         break;
       }
       default: {
-        luaG_runerror(L, "invalid option '%%%c' to 'lua_pushfstring'",
+        luaG_runerror(L, "%s '%%%c' to 'lua_pushfstring'", luastr_invalid_option,
                          *(e + 1));
       }
     }

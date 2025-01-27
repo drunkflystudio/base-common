@@ -187,7 +187,7 @@ static int f_tostring (lua_State *L) {
 static FILE *tofile (lua_State *L) {
   LStream *p = tolstream(L);
   if (l_unlikely(isclosed(p)))
-    luaL_error(L, "attempt to use a closed file");
+    luaL_error(L, "%s use a closed file", luastr_attempt_to);
   lua_assert(p->f);
   return p->f;
 }
@@ -786,10 +786,10 @@ static const luaL_Reg meth[] = {
 ** metamethods for file handles
 */
 static const luaL_Reg metameth[] = {
-  {"__index", NULL},  /* placeholder */
-  {"__gc", f_gc},
-  {"__close", f_gc},
-  {"__tostring", f_tostring},
+  {luastr___index, NULL},  /* placeholder */
+  {luastr_gc, f_gc},
+  {luastr_close, f_gc},
+  {luastr_to_string, f_tostring},
   {NULL, NULL}
 };
 
@@ -799,7 +799,7 @@ static void createmeta (lua_State *L) {
   luaL_setfuncs(L, metameth, 0);  /* add metamethods to new metatable */
   luaL_newlibtable(L, meth);  /* create method table */
   luaL_setfuncs(L, meth, 0);  /* add file methods to method table */
-  lua_setfield(L, -2, "__index");  /* metatable.__index = method table */
+  lua_setfield(L, -2, luastr___index);  /* metatable.__index = method table */
   lua_pop(L, 1);  /* pop metatable */
 }
 

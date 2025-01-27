@@ -25,25 +25,26 @@
 #include "lvm.h"
 
 
-static const char udatatypename[] = "userdata";
+/*static const char udatatypename[] = "userdata";*/
+#define udatatypename (&luastr_light_userdata[6])
 
 LUAI_DDEF const char *const luaT_typenames_[LUA_TOTALTYPES] = {
   "no value",
-  "nil", "boolean", udatatypename, "number",
-  "string", "table", "function", udatatypename, "thread",
-  "upvalue", "proto" /* these last cases are used for tests only */
+  luastr_nil, "boolean", udatatypename, luastr_number,
+  luastr_string, "table", luastr_function, udatatypename, "thread",
+  luastr_upvalue, "proto" /* these last cases are used for tests only */
 };
 
 
 void luaT_init (lua_State *L) {
   static const char *const luaT_eventname[] = {  /* ORDER TM */
-    "__index", "__newindex",
-    "__gc", "__mode", "__len", "__eq",
+    luastr___index, luastr_new_index,
+    luastr_gc, "__mode", luastr_len, "__eq",
     "__add", "__sub", "__mul", "__mod", "__pow",
     "__div", "__idiv",
     "__band", "__bor", "__bxor", "__shl", "__shr",
     "__unm", "__bnot", "__lt", "__le",
-    "__concat", "__call", "__close"
+    "__concat", luastr___call, luastr_close
   };
   int i;
   for (i=0; i<TM_N; i++) {
@@ -92,7 +93,7 @@ const char *luaT_objtypename (lua_State *L, const TValue *o) {
   Table *mt;
   if ((ttistable(o) && (mt = hvalue(o)->metatable) != NULL) ||
       (ttisfulluserdata(o) && (mt = uvalue(o)->metatable) != NULL)) {
-    const TValue *name = luaH_getshortstr(mt, luaS_new(L, "__name"));
+    const TValue *name = luaH_getshortstr(mt, luaS_new(L, luastr_name));
     if (ttisstring(name))  /* is '__name' a string? */
       return getstr(tsvalue(name));  /* use it as type name */
   }

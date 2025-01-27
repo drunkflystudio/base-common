@@ -300,20 +300,20 @@ static void PrintConstant(const Proto* f, int i)
  switch (ttypetag(o))
  {
   case LUA_VNIL:
-	printf("nil");
+	printf("%s",luastr_nil);
 	break;
   case LUA_VFALSE:
-	printf("false");
+	printf("%s",luastr_false);
 	break;
   case LUA_VTRUE:
-	printf("true");
+	printf("%s",luastr_true);
 	break;
   case LUA_VNUMFLT:
 	{
 	char buff[100];
 	sprintf(buff,LUA_NUMBER_FMT,fltvalue(o));
 	printf("%s",buff);
-	if (buff[strspn(buff,"-0123456789")]=='\0') printf(".0");
+	if (buff[strspn(buff,luastr_hex)]=='\0') printf(".0");
 	break;
 	}
   case LUA_VNUMINT:
@@ -670,7 +670,7 @@ static void PrintCode(const Proto* f)
 
 static void PrintHeader(const Proto* f)
 {
- const char* s=f->source ? getstr(f->source) : "=?";
+ const char* s=f->source ? getstr(f->source) : luastr_equal_question;
  if (*s=='@' || *s=='=')
   s++;
  else if (*s==LUA_SIGNATURE[0])
@@ -678,7 +678,7 @@ static void PrintHeader(const Proto* f)
  else
   s="(string)";
  printf("\n%s <%s:%d,%d> (%d instruction%s at %p)\n",
-	(f->linedefined==0)?"main":"function",s,
+	(f->linedefined==0)?"main":luastr_function,s,
 	f->linedefined,f->lastlinedefined,
 	S(f->sizecode),VOID(f));
  printf("%d%s param%s, %d slot%s, %d upvalue%s, ",

@@ -101,7 +101,7 @@ static int pushglobalfuncname (lua_State *L, lua_Debug *ar) {
 
 static void pushfuncname (lua_State *L, lua_Debug *ar) {
   if (pushglobalfuncname(L, ar)) {  /* try first a global name */
-    lua_pushfstring(L, "function '%s'", lua_tostring(L, -1));
+    lua_pushfstring(L, "%s '%s'", luastr_function, lua_tostring(L, -1));
     lua_remove(L, -2);  /* remove name */
   }
   else if (*ar->namewhat != '\0')  /* is there a name from code? */
@@ -109,9 +109,9 @@ static void pushfuncname (lua_State *L, lua_Debug *ar) {
   else if (*ar->what == 'm')  /* main? */
       lua_pushliteral(L, "main chunk");
   else if (*ar->what != 'C')  /* for Lua functions, use <file:line> */
-    lua_pushfstring(L, "function <%s:%d>", ar->short_src, ar->linedefined);
+    lua_pushfstring(L, "%s <%s:%d>", luastr_function, ar->short_src, ar->linedefined);
   else  /* nothing left... */
-    lua_pushliteral(L, "?");
+    luaS_pushliteral(L, luastr_question_mark);
 }
 
 
@@ -177,17 +177,17 @@ LUALIB_API void luaL_traceback (lua_State *L, lua_State *L1,
 LUALIB_API int luaL_argerror (lua_State *L, int arg, const char *extramsg) {
   lua_Debug ar;
   if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
-    return luaL_error(L, "bad argument #%d (%s)", arg, extramsg);
+    return luaL_error(L, "%s #%d (%s)", "bad argument", arg, extramsg);
   lua_getinfo(L, "n", &ar);
-  if (strcmp(ar.namewhat, "method") == 0) {
+  if (strcmp(ar.namewhat, luastr_method) == 0) {
     arg--;  /* do not count 'self' */
     if (arg == 0)  /* error is in the self argument itself? */
       return luaL_error(L, "calling '%s' on bad self (%s)",
                            ar.name, extramsg);
   }
   if (ar.name == NULL)
-    ar.name = (pushglobalfuncname(L, &ar)) ? lua_tostring(L, -1) : "?";
-  return luaL_error(L, "bad argument #%d to '%s' (%s)",
+    ar.name = (pushglobalfuncname(L, &ar)) ? lua_tostring(L, -1) : luastr_question_mark;
+  return luaL_error(L, "%s #%d to '%s' (%s)", "bad argument",
                         arg, ar.name, extramsg);
 }
 
@@ -195,10 +195,10 @@ LUALIB_API int luaL_argerror (lua_State *L, int arg, const char *extramsg) {
 LUALIB_API int luaL_typeerror (lua_State *L, int arg, const char *tname) {
   const char *msg;
   const char *typearg;  /* name for the type of the actual argument */
-  if (luaL_getmetafield(L, arg, "__name") == LUA_TSTRING)
+  if (luaL_getmetafield(L, arg, luastr_name) == LUA_TSTRING)
     typearg = lua_tostring(L, -1);  /* use the given type name */
   else if (lua_type(L, arg) == LUA_TLIGHTUSERDATA)
-    typearg = "light userdata";  /* special name for messages */
+    typearg = luastr_light_userdata;  /* special name for messages */
   else
     typearg = luaL_typename(L, arg);  /* standard name */
   msg = lua_pushfstring(L, "%s expected, got %s", tname, typearg);
@@ -322,7 +322,7 @@ LUALIB_API int luaL_newmetatable (lua_State *L, const char *tname) {
   lua_pop(L, 1);
   lua_createtable(L, 0, 2);  /* create metatable */
   lua_pushstring(L, tname);
-  lua_setfield(L, -2, "__name");  /* metatable.__name = tname */
+  lua_setfield(L, -2, luastr_name);  /* metatable.__name = tname */
   lua_pushvalue(L, -1);
   lua_setfield(L, LUA_REGISTRYINDEX, tname);  /* registry.name = metatable */
   return 1;
@@ -374,7 +374,7 @@ LUALIB_API int luaL_checkoption (lua_State *L, int arg, const char *def,
     if (strcmp(lst[i], name) == 0)
       return i;
   return luaL_argerror(L, arg,
-                       lua_pushfstring(L, "invalid option '%s'", name));
+                       lua_pushfstring(L, "%s '%s'", luastr_invalid_option, name));
 }
 
 
@@ -388,9 +388,9 @@ LUALIB_API int luaL_checkoption (lua_State *L, int arg, const char *def,
 LUALIB_API void luaL_checkstack (lua_State *L, int space, const char *msg) {
   if (l_unlikely(!lua_checkstack(L, space))) {
     if (msg)
-      luaL_error(L, "stack overflow (%s)", msg);
+      luaL_error(L, "%s (%s)", luastr_stack_overflow, msg);
     else
-      luaL_error(L, "stack overflow");
+      luaL_error(L, luastr_stack_overflow);
   }
 }
 
@@ -441,7 +441,7 @@ LUALIB_API lua_Number luaL_optnumber (lua_State *L, int arg, lua_Number def) {
 
 static void interror (lua_State *L, int arg) {
   if (lua_isnumber(L, arg))
-    luaL_argerror(L, arg, "number has no integer representation");
+    luaL_argerror(L, arg, luastr_number_no_integer);
   else
     tag_error(L, arg, LUA_TNUMBER);
 }
@@ -484,7 +484,7 @@ static void *resizebox (lua_State *L, int idx, size_t newsize) {
   UBox *box = (UBox *)lua_touserdata(L, idx);
   void *temp = allocf(ud, box->box, box->bsize, newsize);
   if (l_unlikely(temp == NULL && newsize > 0)) {  /* allocation error? */
-    lua_pushliteral(L, "not enough memory");
+    lua_pushstring(L, luastr_no_memory);
     lua_error(L);  /* raise a memory error */
   }
   box->box = temp;
@@ -500,8 +500,8 @@ static int boxgc (lua_State *L) {
 
 
 static const luaL_Reg boxmt[] = {  /* box metamethods */
-  {"__gc", boxgc},
-  {"__close", boxgc},
+  {luastr_gc, boxgc},
+  {luastr_close, boxgc},
   {NULL, NULL}
 };
 
@@ -905,12 +905,11 @@ LUALIB_API lua_Integer luaL_len (lua_State *L, int idx) {
   return l;
 }
 
-
 LUALIB_API const char *luaL_tolstring (lua_State *L, int idx, size_t *len) {
   idx = lua_absindex(L,idx);
-  if (luaL_callmeta(L, idx, "__tostring")) {  /* metafield? */
+  if (luaL_callmeta(L, idx, luastr_to_string)) {  /* metafield? */
     if (!lua_isstring(L, -1))
-      luaL_error(L, "'__tostring' must return a string");
+      luaL_error(L, "'%s' must return a string", luastr_to_string);
   }
   else {
     switch (lua_type(L, idx)) {
@@ -925,13 +924,13 @@ LUALIB_API const char *luaL_tolstring (lua_State *L, int idx, size_t *len) {
         lua_pushvalue(L, idx);
         break;
       case LUA_TBOOLEAN:
-        lua_pushstring(L, (lua_toboolean(L, idx) ? "true" : "false"));
+        lua_pushstring(L, (lua_toboolean(L, idx) ? luastr_true : luastr_false));
         break;
       case LUA_TNIL:
-        lua_pushliteral(L, "nil");
+        luaS_pushliteral(L, luastr_nil);
         break;
       default: {
-        int tt = luaL_getmetafield(L, idx, "__name");  /* try name */
+        int tt = luaL_getmetafield(L, idx, luastr_name);  /* try name */
         const char *kind = (tt == LUA_TSTRING) ? lua_tostring(L, -1) :
                                                  luaL_typename(L, idx);
         lua_pushfstring(L, "%s: %p", kind, lua_topointer(L, idx));
@@ -1054,7 +1053,7 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
 static int panic (lua_State *L) {
   const char *msg = (lua_type(L, -1) == LUA_TSTRING)
                   ? lua_tostring(L, -1)
-                  : "error object is not a string";
+                  : luastr_err_no_str;
   lua_writestringerror("PANIC: unprotected error in call to Lua API (%s)\n",
                         msg);
   return 0;  /* return to Lua to abort */
@@ -1127,8 +1126,6 @@ LUALIB_API lua_State *luaL_newstate (void) {
   return L;
 }
 
-#endif
-#ifndef LAUXLIB_FILE_IO
 
 LUALIB_API void luaL_checkversion_ (lua_State *L, lua_Number ver, size_t sz) {
   lua_Number v = lua_version(L);

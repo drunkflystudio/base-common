@@ -47,9 +47,9 @@ static void checktab (lua_State *L, int arg, int what) {
   if (lua_type(L, arg) != LUA_TTABLE) {  /* is it not a table? */
     int n = 1;  /* number of elements to pop */
     if (lua_getmetatable(L, arg) &&  /* must have metatable */
-        (!(what & TAB_R) || checkfield(L, "__index", ++n)) &&
-        (!(what & TAB_W) || checkfield(L, "__newindex", ++n)) &&
-        (!(what & TAB_L) || checkfield(L, "__len", ++n))) {
+        (!(what & TAB_R) || checkfield(L, luastr___index, ++n)) &&
+        (!(what & TAB_W) || checkfield(L, luastr_new_index, ++n)) &&
+        (!(what & TAB_L) || checkfield(L, luastr_len, ++n))) {
       lua_pop(L, n);  /* pop metatable and tested metamethods */
     }
     else

@@ -16,7 +16,7 @@
 ** Memory-allocation error message must be preallocated (it cannot
 ** be created after memory is exhausted)
 */
-#define MEMERRMSG       "not enough memory"
+#define MEMERRMSG       luastr_no_memory
 
 
 /*
@@ -25,7 +25,7 @@
 */
 #define sizelstring(l)  (offsetof(TString, contents) + ((l) + 1) * sizeof(char))
 
-#define luaS_newliteral(L, s)	(luaS_newlstr(L, "" s, \
+#define luaS_newliteral(L, s)	(luaS_newlstr(L, /*""*/ s, \
                                  (sizeof(s)/sizeof(char))-1))
 
 

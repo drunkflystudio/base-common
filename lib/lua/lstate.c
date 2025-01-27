@@ -164,7 +164,7 @@ void luaE_shrinkCI (lua_State *L) {
 */
 void luaE_checkcstack (lua_State *L) {
   if (getCcalls(L) == LUAI_MAXCCALLS)
-    luaG_runerror(L, "C stack overflow");
+    luaG_runerror(L, luastr_c_stack_overflow);
   else if (getCcalls(L) >= (LUAI_MAXCCALLS / 10 * 11))
     luaD_throw(L, LUA_ERRERR);  /* error while handling stack error */
 }
@@ -437,7 +437,7 @@ void luaE_warnerror (lua_State *L, const char *where) {
   TValue *errobj = s2v(L->top.p - 1);  /* error object */
   const char *msg = (ttisstring(errobj))
                   ? getstr(tsvalue(errobj))
-                  : "error object is not a string";
+                  : luastr_err_no_str;
   /* produce warning "error in %s (%s)" (where, msg) */
   luaE_warning(L, "error in ", 1);
   luaE_warning(L, where, 1);

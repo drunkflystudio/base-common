@@ -264,7 +264,7 @@ int luaD_growstack (lua_State *L, int n, int raiseerror) {
   /* add extra size to be able to handle the error message */
   luaD_reallocstack(L, ERRORSTACKSIZE, raiseerror);
   if (raiseerror)
-    luaG_runerror(L, "stack overflow");
+    luaG_runerror(L, luastr_stack_overflow);
   return 0;
 }
 
@@ -846,7 +846,7 @@ LUA_API int lua_resume (lua_State *L, lua_State *from, int nargs,
     return resume_error(L, "cannot resume dead coroutine", nargs);
   L->nCcalls = (from) ? getCcalls(from) : 0;
   if (getCcalls(L) >= LUAI_MAXCCALLS)
-    return resume_error(L, "C stack overflow", nargs);
+    return resume_error(L, luastr_c_stack_overflow, nargs);
   L->nCcalls++;
   luai_userstateresume(L, nargs);
   api_checknelems(L, (L->status == LUA_OK) ? nargs + 1 : nargs);
@@ -881,9 +881,9 @@ LUA_API int lua_yieldk (lua_State *L, int nresults, lua_KContext ctx,
   api_checknelems(L, nresults);
   if (l_unlikely(!yieldable(L))) {
     if (L != G(L)->mainthread)
-      luaG_runerror(L, "attempt to yield across a C-call boundary");
+      luaG_runerror(L, "%s yield %s", luastr_attempt_to, "across a C-call boundary");
     else
-      luaG_runerror(L, "attempt to yield from outside a coroutine");
+      luaG_runerror(L, "%s yield %s", luastr_attempt_to, "from outside a coroutine");
   }
   L->status = LUA_YIELD;
   ci->u2.nyield = nresults;  /* save number of results */
@@ -983,7 +983,7 @@ struct SParser {  /* data to 'f_parser' */
 static void checkmode (lua_State *L, const char *mode, const char *x) {
   if (mode && strchr(mode, x[0]) == NULL) {
     luaO_pushfstring(L,
-       "attempt to load a %s chunk (mode is '%s')", x, mode);
+       "%s load a %s chunk (mode is '%s')", luastr_attempt_to, x, mode);
     luaD_throw(L, LUA_ERRSYNTAX);
   }
 }

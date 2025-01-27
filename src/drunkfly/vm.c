@@ -21,7 +21,6 @@ STRUCT(VMStartupContext) {
     size_t tempBufferPosition;
 };
 
-static const char g_ErrorNotString[] = "error object is not a string";
 static const char g_PanicPrefix[] = "unhandled exception: ";
 
 static void vmCrash(lua_State* L)
@@ -33,8 +32,6 @@ static void vmCrash(lua_State* L)
 static int vmMain(lua_State* L)
 {
     VMStartupContext* ctx = (VMStartupContext*)(G(L)->ud);
-
-    luaL_checkversion(L);
 
     if (ctx->init) {
         lua_pushcfunction(L, ctx->init);
@@ -58,7 +55,7 @@ static int vmPanic(lua_State* L)
     const char* msg;
 
     ctx = (VMStartupContext*)(G(L)->ud);
-    msg = (lua_type(L, -1) == LUA_TSTRING ? lua_tostring(L, -1) : g_ErrorNotString);
+    msg = (lua_type(L, -1) == LUA_TSTRING ? lua_tostring(L, -1) : luastr_err_no_str);
 
     if (ctx->logger) {
         size_t len1 = sizeof(g_PanicPrefix) - 1;
@@ -91,7 +88,7 @@ void* vmAlloc(lua_State* L, size_t size)
 
     ptr = allocf(ud, NULL, 0, size);
     if (!ptr) {
-        lua_pushliteral(L, "not enough memory");
+        luaS_pushliteral(L, luastr_no_memory);
         lua_error(L);
     }
 
@@ -113,7 +110,7 @@ void* vmRealloc(lua_State* L, void* old, size_t oldSize, size_t newSize)
 
     ptr = allocf(ud, old, oldSize, newSize);
     if (!ptr) {
-        lua_pushliteral(L, "not enough memory");
+        luaS_pushliteral(L, luastr_no_memory);
         lua_error(L);
     }
 
@@ -144,7 +141,7 @@ int vmCheckError(lua_State* L, int status)
         const char* msg = lua_tostring(L, -1);
         if (!msg) {
             lua_pop(L, 1);
-            msg = lua_pushfstring(L, "(%s)", g_ErrorNotString);
+            msg = lua_pushfstring(L, "(%s)", luastr_err_no_str);
         }
 
         if (ctx->logger) {
@@ -163,7 +160,7 @@ static int vmErrorHandler(lua_State* L)
 {
     const char* msg = lua_tostring(L, 1);
     if (!msg) {
-        if (luaL_callmeta(L, 1, "__tostring") && lua_type(L, -1) == LUA_TSTRING)
+        if (luaL_callmeta(L, 1, luastr_to_string) && lua_type(L, -1) == LUA_TSTRING)
             return 1;
         else
             msg = lua_pushfstring(L, "(error object is a %s value)", luaL_typename(L, 1));

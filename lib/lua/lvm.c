@@ -295,7 +295,7 @@ void luaV_finishget (lua_State *L, const TValue *t, TValue *key, StkId val,
       lua_assert(!ttistable(t));
       tm = luaT_gettmbyobj(L, t, TM_INDEX);
       if (l_unlikely(notm(tm)))
-        luaG_typeerror(L, t, "index");  /* no metamethod */
+        luaG_typeerror(L, t, luastr_index);  /* no metamethod */
       /* else will try the metamethod */
     }
     else {  /* 't' is a table */
@@ -318,7 +318,7 @@ void luaV_finishget (lua_State *L, const TValue *t, TValue *key, StkId val,
     }
     /* else repeat (tail call 'luaV_finishget') */
   }
-  luaG_runerror(L, "'__index' chain too long; possible loop");
+  luaG_runerror(L, "'%s' chain too long; possible loop", luastr___index);
 }
 
 
@@ -349,7 +349,7 @@ void luaV_finishset (lua_State *L, const TValue *t, TValue *key,
     else {  /* not a table; check metamethod */
       tm = luaT_gettmbyobj(L, t, TM_NEWINDEX);
       if (l_unlikely(notm(tm)))
-        luaG_typeerror(L, t, "index");
+        luaG_typeerror(L, t, luastr_index);
     }
     /* try the metamethod */
     if (ttisfunction(tm)) {
@@ -363,7 +363,7 @@ void luaV_finishset (lua_State *L, const TValue *t, TValue *key,
     }
     /* else 'return luaV_finishset(L, t, key, val, slot)' (loop) */
   }
-  luaG_runerror(L, "'__newindex' chain too long; possible loop");
+  luaG_runerror(L, "'%s' chain too long; possible loop", luastr_new_index);
 }
 
 
@@ -663,7 +663,7 @@ void luaV_concat (lua_State *L, int total) {
         size_t l = tsslen(tsvalue(s2v(top - n - 1)));
         if (l_unlikely(l >= MAX_SIZE - sizeof(TString) - tl)) {
           L->top.p = top - total;  /* pop strings to avoid wasting stack */
-          luaG_runerror(L, "string length overflow");
+          luaG_runerror(L, "%s length overflow", luastr_string);
         }
         tl += l;
       }
@@ -705,7 +705,7 @@ void luaV_objlen (lua_State *L, StkId ra, const TValue *rb) {
       size_t len = tsvalue(rb)->u.lnglen;
       lua_Integer li = (lua_Integer)len;
       if (li < 0 || (size_t)li != len)
-        luaG_runerror(L, "string is too long");
+        luaG_runerror(L, "%s is too long", luastr_string);
       setivalue(s2v(ra), li);
       return;
     }
@@ -729,7 +729,7 @@ void luaV_objlen (lua_State *L, StkId ra, const TValue *rb) {
 lua_Integer luaV_idiv (lua_State *L, lua_Integer m, lua_Integer n) {
   if (l_unlikely(l_castS2U(n) + 1u <= 1u)) {  /* special cases: -1 or 0 */
     if (n == 0)
-      luaG_runerror(L, "attempt to divide by zero");
+      luaG_runerror(L, "%s divide by zero", luastr_attempt_to);
     return intop(-, 0, m);   /* n==-1; avoid overflow with 0x80000...//-1 */
   }
   else {
@@ -749,7 +749,7 @@ lua_Integer luaV_idiv (lua_State *L, lua_Integer m, lua_Integer n) {
 lua_Integer luaV_mod (lua_State *L, lua_Integer m, lua_Integer n) {
   if (l_unlikely(l_castS2U(n) + 1u <= 1u)) {  /* special cases: -1 or 0 */
     if (n == 0)
-      luaG_runerror(L, "attempt to perform 'n%%0'");
+      luaG_runerror(L, "%s perform 'n%%0'", luastr_attempt_to);
     return 0;   /* m % -1 == 0; avoid overflow with 0x80000...%-1 */
   }
   else {

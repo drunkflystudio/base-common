@@ -1092,7 +1092,7 @@ LUA_API int lua_load (lua_State *L, lua_Reader reader, void *data,
   ZIO z;
   int status;
   lua_lock(L);
-  if (!chunkname) chunkname = "?";
+  if (!chunkname) chunkname = luastr_question_mark;
   luaZ_init(L, &z, reader, data);
   status = luaD_protectedparser(L, &z, chunkname, mode);
   if (status == LUA_OK) {  /* no errors? */

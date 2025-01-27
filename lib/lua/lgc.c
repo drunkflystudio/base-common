@@ -925,7 +925,7 @@ static void GCTM (lua_State *L) {
     L->allowhook = oldah;  /* restore hooks */
     g->gcstp = oldgcstp;  /* restore state */
     if (l_unlikely(status != LUA_OK)) {  /* error while running __gc? */
-      luaE_warnerror(L, "__gc");
+      luaE_warnerror(L, luastr_gc);
       L->top.p--;  /* pops error object */
     }
   }

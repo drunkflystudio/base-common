@@ -299,7 +299,7 @@ static void check_readonly (LexState *ls, expdesc *e) {
   }
   if (varname) {
     const char *msg = luaO_pushfstring(ls->L,
-       "attempt to assign to const variable '%s'", getstr(varname));
+       "%s assign to const variable '%s'", luastr_attempt_to, getstr(varname));
     luaK_semerror(ls, msg);  /* error */
   }
 }

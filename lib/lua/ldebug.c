@@ -176,7 +176,7 @@ LUA_API int lua_getstack (lua_State *L, int level, lua_Debug *ar) {
 
 static const char *upvalname (const Proto *p, int uv) {
   TString *s = check_exp(uv < p->sizeupvalues, p->upvalues[uv].name);
-  if (s == NULL) return "?";
+  if (s == NULL) return luastr_question_mark;
   else return getstr(s);
 }
 
@@ -268,8 +268,8 @@ static void funcinfo (lua_Debug *ar, Closure *cl) {
       ar->srclen = tsslen(p->source);
     }
     else {
-      ar->source = "=?";
-      ar->srclen = LL("=?");
+      ar->source = luastr_equal_question;
+      ar->srclen = 2;
     }
     ar->linedefined = p->linedefined;
     ar->lastlinedefined = p->lastlinedefined;
@@ -486,7 +486,7 @@ static const char *kname (const Proto *p, int index, const char **name) {
     return "constant";
   }
   else {
-    *name = "?";
+    *name = luastr_question_mark;
     return NULL;
   }
 }
@@ -512,7 +512,7 @@ static const char *basicgetobjname (const Proto *p, int *ppc, int reg,
       }
       case OP_GETUPVAL: {
         *name = upvalname(p, GETARG_B(i));
-        return "upvalue";
+        return luastr_upvalue;
       }
       case OP_LOADK: return kname(p, GETARG_Bx(i), name);
       case OP_LOADKX: return kname(p, GETARG_Ax(p->code[pc + 1]), name);
@@ -529,7 +529,7 @@ static const char *basicgetobjname (const Proto *p, int *ppc, int reg,
 static void rname (const Proto *p, int pc, int c, const char **name) {
   const char *what = basicgetobjname(p, &pc, c, name); /* search for 'c' */
   if (!(what && *what == 'c'))  /* did not find a constant name? */
-    *name = "?";
+    *name = luastr_question_mark;
 }
 
 
@@ -593,7 +593,7 @@ static const char *getobjname (const Proto *p, int lastpc, int reg,
       }
       case OP_SELF: {
         rkname(p, lastpc, i, name);
-        return "method";
+        return luastr_method;
       }
       default: break;  /* go through to return NULL */
     }
@@ -645,7 +645,7 @@ static const char *funcnamefromcode (lua_State *L, const Proto *p,
       return NULL;  /* cannot find a reasonable name */
   }
   *name = getshrstr(G(L)->tmname[tm]) + 2;
-  return "metamethod";
+  return luastr_metamethod;
 }
 
 
@@ -655,12 +655,12 @@ static const char *funcnamefromcode (lua_State *L, const Proto *p,
 static const char *funcnamefromcall (lua_State *L, CallInfo *ci,
                                                    const char **name) {
   if (ci->callstatus & CIST_HOOKED) {  /* was it called inside a hook? */
-    *name = "?";
+    *name = luastr_question_mark;
     return "hook";
   }
   else if (ci->callstatus & CIST_FIN) {  /* was it called as a finalizer? */
-    *name = "__gc";
-    return "metamethod";  /* report it as such */
+    *name = luastr_gc;
+    return luastr_metamethod;  /* report it as such */
   }
   else if (isLua(ci))
     return funcnamefromcode(L, ci_func(ci)->p, currentpc(ci), name);
@@ -701,7 +701,7 @@ static const char *getupvalname (CallInfo *ci, const TValue *o,
   for (i = 0; i < c->nupvalues; i++) {
     if (c->upvals[i]->v.p == o) {
       *name = upvalname(c->p, i);
-      return "upvalue";
+      return luastr_upvalue;
     }
   }
   return NULL;
@@ -742,7 +742,7 @@ static const char *varinfo (lua_State *L, const TValue *o) {
 static l_noret typeerror (lua_State *L, const TValue *o, const char *op,
                           const char *extra) {
   const char *t = luaT_objtypename(L, o);
-  luaG_runerror(L, "attempt to %s a %s value%s", op, t, extra);
+  luaG_runerror(L, "%s %s a %s value%s", luastr_attempt_to, op, t, extra);
 }
 
 
@@ -765,13 +765,13 @@ l_noret luaG_callerror (lua_State *L, const TValue *o) {
   const char *name = NULL;  /* to avoid warnings */
   const char *kind = funcnamefromcall(L, ci, &name);
   const char *extra = kind ? formatvarinfo(L, kind, name) : varinfo(L, o);
-  typeerror(L, o, "call", extra);
+  typeerror(L, o, luastr_call, extra);
 }
 
 
 l_noret luaG_forerror (lua_State *L, const TValue *o, const char *what) {
-  luaG_runerror(L, "bad 'for' %s (number expected, got %s)",
-                   what, luaT_objtypename(L, o));
+  luaG_runerror(L, "bad 'for' %s (%s expected, got %s)",
+                   what, luastr_number, luaT_objtypename(L, o));
 }
 
 
@@ -796,7 +796,7 @@ l_noret luaG_tointerror (lua_State *L, const TValue *p1, const TValue *p2) {
   lua_Integer temp;
   if (!luaV_tointegerns(p1, &temp, LUA_FLOORN2I))
     p2 = p1;
-  luaG_runerror(L, "number%s has no integer representation", varinfo(L, p2));
+  luaG_runerror(L, "%s%s%s", luastr_number, varinfo(L, p2), luastr_no_integer);
 }
 
 
@@ -804,9 +804,9 @@ l_noret luaG_ordererror (lua_State *L, const TValue *p1, const TValue *p2) {
   const char *t1 = luaT_objtypename(L, p1);
   const char *t2 = luaT_objtypename(L, p2);
   if (strcmp(t1, t2) == 0)
-    luaG_runerror(L, "attempt to compare two %s values", t1);
+    luaG_runerror(L, "%s compare two %s values", luastr_attempt_to, t1);
   else
-    luaG_runerror(L, "attempt to compare %s with %s", t1, t2);
+    luaG_runerror(L, "%s compare %s with %s", luastr_attempt_to, t1, t2);
 }
 
 

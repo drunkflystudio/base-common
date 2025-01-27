@@ -667,7 +667,7 @@ static void luaH_newkey (lua_State *L, Table *t, const TValue *key,
   Node *mp;
   TValue aux;
   if (l_unlikely(ttisnil(key)))
-    luaG_runerror(L, "table index is nil");
+    luaG_runerror(L, "table index is %s", luastr_nil);
   else if (ttisfloat(key)) {
     lua_Number f = fltvalue(key);
     lua_Integer k;
@@ -676,7 +676,7 @@ static void luaH_newkey (lua_State *L, Table *t, const TValue *key,
       key = &aux;  /* insert it as an integer */
     }
     else if (l_unlikely(luai_numisnan(f)))
-      luaG_runerror(L, "table index is NaN");
+      luaG_runerror(L, "table index is %s", "NaN");
   }
   if (ttisnil(value))
     return;  /* do not insert nil values */

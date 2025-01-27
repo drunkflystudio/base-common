@@ -29,7 +29,7 @@ LUAMOD_API int (luaopen_io) (lua_State *L);
 #define LUA_OSLIBNAME	"os"
 LUAMOD_API int (luaopen_os) (lua_State *L);
 
-#define LUA_STRLIBNAME	"string"
+#define LUA_STRLIBNAME	luastr_string
 LUAMOD_API int (luaopen_string) (lua_State *L);
 
 #define LUA_UTF8LIBNAME	"utf8"

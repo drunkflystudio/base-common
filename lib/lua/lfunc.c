@@ -127,7 +127,7 @@ static void checkclosemth (lua_State *L, StkId level) {
   if (ttisnil(tm)) {  /* no metamethod? */
     int idx = cast_int(level - L->ci->func.p);  /* variable index */
     const char *vname = luaG_findlocal(L, L->ci, idx, NULL);
-    if (vname == NULL) vname = "?";
+    if (vname == NULL) vname = luastr_question_mark;
     luaG_runerror(L, "variable '%s' got a non-closable value", vname);
   }
 }

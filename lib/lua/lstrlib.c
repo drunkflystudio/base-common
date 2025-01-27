@@ -257,7 +257,7 @@ static int str_dump (lua_State *L) {
 /* no coercion from strings to numbers */
 
 static const luaL_Reg stringmetamethods[] = {
-  {"__index", NULL},  /* placeholder */
+  {luastr___index, NULL},  /* placeholder */
   {NULL, NULL}
 };
 
@@ -280,7 +280,7 @@ static void trymt (lua_State *L, const char *mtname) {
   lua_settop(L, 2);  /* back to the original arguments */
   if (l_unlikely(lua_type(L, 2) == LUA_TSTRING ||
                  !luaL_getmetafield(L, 2, mtname)))
-    luaL_error(L, "attempt to %s a '%s' with a '%s'", mtname + 2,
+    luaL_error(L, "%s %s a '%s' with a '%s'", luastr_attempt_to, mtname + 2,
                   luaL_typename(L, -2), luaL_typename(L, -1));
   lua_insert(L, -3);  /* put metamethod before arguments */
   lua_call(L, 2, 1);  /* call metamethod */
@@ -338,7 +338,7 @@ static const luaL_Reg stringmetamethods[] = {
   {"__div", arith_div},
   {"__idiv", arith_idiv},
   {"__unm", arith_unm},
-  {"__index", NULL},  /* placeholder */
+  {luastr___index, NULL},  /* placeholder */
   {NULL, NULL}
 };
 
@@ -1860,7 +1860,7 @@ static void createmetatable (lua_State *L) {
   lua_setmetatable(L, -2);  /* set table as metatable for strings */
   lua_pop(L, 1);  /* pop dummy string */
   lua_pushvalue(L, -2);  /* get string library */
-  lua_setfield(L, -2, "__index");  /* metatable.__index = string */
+  lua_setfield(L, -2, luastr___index);  /* metatable.__index = string */
   lua_pop(L, 1);  /* pop metatable */
 }
 

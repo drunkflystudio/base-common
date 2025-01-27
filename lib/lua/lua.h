@@ -386,6 +386,7 @@ LUA_API void (lua_closeslot) (lua_State *L, int idx);
 #define lua_isnoneornil(L, n)	(lua_type(L, (n)) <= 0)
 
 #define lua_pushliteral(L, s)	lua_pushstring(L, "" s)
+#define luaS_pushliteral(L, s)	lua_pushstring(L, s)
 
 #define lua_pushglobaltable(L)  \
 	((void)lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS))
@@ -503,6 +504,38 @@ extern void (*p_luaX_init)(lua_State *L);
 extern struct LClosure* (*p_luaY_parser)(lua_State* L, struct Zio* z, struct Mbuffer* buff, struct Dyndata* dyd,
     const char* name, int firstchar);
 extern struct LClosure* (*p_luaU_undump)(lua_State *L, struct Zio* Z, const char* name);
+
+extern const char luastr_hex[];
+extern const char luastr_name[];
+extern const char luastr_gc[];
+extern const char luastr_len[];
+extern const char luastr_to_string[];
+#define luastr_string (&luastr_to_string[4])
+extern const char luastr___index[];
+#define luastr_index (&luastr___index[2])
+extern const char luastr_new_index[];
+extern const char luastr_close[];
+extern const char luastr___call[];
+#define luastr_call (&luastr___call[2])
+extern const char luastr_upvalue[];
+extern const char luastr_function[];
+extern const char luastr_number[];
+extern const char luastr_metamethod[];
+#define luastr_method (&luastr_metamethod[4])
+extern const char luastr_light_userdata[];
+extern const char luastr_invalid_option[];
+extern const char luastr_true[];
+extern const char luastr_false[];
+extern const char luastr_nil[];
+extern const char luastr_c_stack_overflow[];
+#define luastr_stack_overflow (&luastr_c_stack_overflow[2])
+extern const char luastr_err_no_str[];
+extern const char luastr_attempt_to[];
+extern const char luastr_no_memory[18];
+extern const char luastr_number_no_integer[];
+#define luastr_no_integer (&luastr_number_no_integer[6])
+extern const char luastr_equal_question[3];
+#define luastr_question_mark (&luastr_equal_question[1])
 
 /******************************************************************************
 * Copyright (C) 1994-2024 Lua.org, PUC-Rio.
