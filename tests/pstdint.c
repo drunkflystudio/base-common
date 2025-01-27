@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-
-#define RUN_FILE_NAME "t_base.run"
+#include <drunkfly/common.h>
 
 #ifdef __BORLANDC__
 #pragma option -w-ccc
@@ -39,17 +34,11 @@ int pstdint_main(void);
 #include "pstdint.h"
 #undef main
 
-int main(void)
+bool pstdint_tests(void)
 {
-    int success = 1;
     char buf[256];
-    int r;
 
-    remove(RUN_FILE_NAME);
-
-    /* pstdint.h */
-
-    r = pstdint_main();
+    int r = pstdint_main();
     #define CHECKEQSIZE(type1, type2) \
         if (sizeof(type1) != sizeof(type2)) { \
             r = EXIT_FAILURE; \
@@ -114,22 +103,6 @@ int main(void)
     CHECKVALUE(PRINTF_INT64_MODIFIER "d", INT64_MAX, "9223372036854775807")
     CHECKVALUE(PRINTF_INT64_MODIFIER "u", UINT64_MAX, "18446744073709551615")
   #endif
-    if (r != EXIT_SUCCESS)
-        success = 0;
-    else
-        printf("pstdint.h tests passed!\n");
 
-    /* done */
-
-    if (success) {
-        FILE* f = fopen(RUN_FILE_NAME, "w");
-        if (!f) {
-            fprintf(stderr, "can't write \"%s\": %s\n", RUN_FILE_NAME, strerror(errno));
-            return EXIT_FAILURE;
-        }
-        fwrite("1", 1, 1, f);
-        fclose(f);
-    }
-
-    return r;
+    return (r == EXIT_SUCCESS);
 }

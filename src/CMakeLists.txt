@@ -13,5 +13,3 @@ add_library(FlyCommon STATIC ${src})
 set_target_properties(FlyCommon PROPERTIES FOLDER "Libs")
 target_include_directories(FlyCommon PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(FlyCommon PUBLIC LuaCore)
-
-add_dependencies(FlyCommon RunBaseTests)
