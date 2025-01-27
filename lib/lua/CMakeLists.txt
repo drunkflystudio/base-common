@@ -54,13 +54,6 @@ set_target_properties(LuaCore PROPERTIES
     OUTPUT_NAME "luacore"
     )
 
-if(NOT WIN32)
-    find_library(LIBM m)
-    if(LIBM)
-        target_link_libraries(LuaCore m)
-    endif()
-endif()
-
 ######################################################################################################################
 ## Lua parser
 
@@ -135,6 +128,13 @@ set_target_properties(LuaLibs PROPERTIES
     FOLDER "Libs/Lua"
     OUTPUT_NAME "lualibs"
     )
+
+######################################################################################################################
+
+if(CMAKE_SYSTEM_NAME MATCHES Linux)
+    target_link_libraries(LuaCore m)
+    target_link_libraries(LuaLibs m)
+endif()
 
 ######################################################################################################################
 ## Lua tools

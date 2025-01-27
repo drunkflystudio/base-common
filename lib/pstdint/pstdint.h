@@ -203,6 +203,13 @@
 #  ifndef PRINTF_INT32_MODIFIER
 #   define PRINTF_INT32_MODIFIER ""
 #  endif
+# elif defined(__GNUC__) && defined(__linux__) && defined(__i386__)
+#  ifndef PRINTF_INT64_MODIFIER
+#   define PRINTF_INT64_MODIFIER "ll"
+#  endif
+#  ifndef PRINTF_INT32_MODIFIER
+#   define PRINTF_INT32_MODIFIER ""
+#  endif
 # else
 #  ifndef PRINTF_INT64_MODIFIER
 #   define PRINTF_INT64_MODIFIER "ll"
