@@ -18,3 +18,7 @@ set_target_properties(BaseTests PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/.."
     OUTPUT_NAME "t_base"
     )
+
+if(CMAKE_COMPILER_IS_GNUCC)
+    set_source_files_properties(pstdint.c PROPERTIES COMPILE_FLAGS "-Wno-long-long")
+endif()
