@@ -209,7 +209,8 @@ static void* vmAllocator(void* ud, void* ptr, size_t osize, size_t nsize)
     if (nsize != 0)
         return realloc(ptr, nsize);
     else {
-        free(ptr);
+        if (ptr)
+            free(ptr);
         return NULL;
     }
   #else
