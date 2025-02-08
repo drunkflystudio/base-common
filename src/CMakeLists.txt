@@ -2,6 +2,8 @@
 enable_warnings()
 
 set(src
+    drunkfly/buff.c
+    drunkfly/buff.h
     drunkfly/common.h
     drunkfly/vm.c
     drunkfly/vm.h
