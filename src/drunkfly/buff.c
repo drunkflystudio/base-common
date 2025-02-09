@@ -1,4 +1,5 @@
 #include <drunkfly/buff.h>
+#include <string.h>
 #include <lauxlib.h>
 #include <lobject.h>
 
@@ -7,26 +8,37 @@ void buffInit(Buff* buff, lua_State* L)
     luaL_buffinit(L, &buff->buffer);
 }
 
+void buffAppend(Buff* buff, const void* data, size_t size)
+{
+    if (size > 0) {
+        char *b = prepbuffsize(&buff->buffer, size, 0);
+        memcpy(b, data, size);
+        luaL_addsize(&buff->buffer, size);
+    }
+}
+
 void buffPrintC(Buff* buff, char ch)
 {
-    luaL_addchar(&buff->buffer, ch);
+    if (buff->buffer.n >= buff->buffer.size)
+        prepbuffsize(&buff->buffer, 1, 0);
+    buff->buffer.b[buff->buffer.n++] = ch;
 }
 
 void buffPrintUtf8(Buff* buff, uint32_t ch)
 {
     /* FIXME */
-    luaL_addchar(&buff->buffer, (char)ch);
+    buffPrintC(buff, (char)ch);
 }
 
 void buffPrintS(Buff* buff, const char* str)
 {
-    luaL_addstring(&buff->buffer, str);
+    buffAppend(buff, str, strlen(str));
 }
 
 void buffPrintV(Buff* buff, const char* fmt, va_list args)
 {
-    luaO_pushvfstring(buff->buffer.L, fmt, args);
-    luaL_addvalue(&buff->buffer);
+    const char* str = luaO_pushvfstring(buff->buffer.L, fmt, args);
+    buffAppend(buff, str, strlen(str));
 }
 
 void buffPrintF(Buff* buff, const char* fmt, ...)
@@ -39,6 +51,8 @@ void buffPrintF(Buff* buff, const char* fmt, ...)
 
 const char* buffEnd(Buff* buff, size_t* outSize)
 {
-    luaL_pushresult(&buff->buffer);
-    return lua_tolstring(buff->buffer.L, -1, outSize);
+    lua_State* L = buff->buffer.L;
+    if (outSize)
+        *outSize = buff->buffer.n;
+    return lua_pushlstring(L, buff->buffer.b, buff->buffer.n);
 }

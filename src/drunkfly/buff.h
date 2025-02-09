@@ -10,6 +10,7 @@ STRUCT(Buff) {
 };
 
 void buffInit(Buff* buff, lua_State* L);
+void buffAppend(Buff* buff, const void* data, size_t size);
 void buffPrintC(Buff* buff, char ch);
 void buffPrintUtf8(Buff* buff, uint32_t ch);
 void buffPrintS(Buff* buff, const char* str);
