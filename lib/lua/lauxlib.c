@@ -568,7 +568,7 @@ static char *prepbuffsize (luaL_Buffer *B, size_t sz) {
       lua_remove(L, boxidx);  /* remove placeholder */
       newbox(L);  /* create a new box */
       lua_insert(L, boxidx);  /* move box to its intended position */
-      /*lua_toclose(L, boxidx);*/
+      lua_toclose(L, boxidx);
       newbuff = (char *)resizebox(L, boxidx, newsize);
       memcpy(newbuff, B->b, B->n * sizeof(char));  /* copy original content */
     }
@@ -604,8 +604,8 @@ LUALIB_API void luaL_pushresult (luaL_Buffer *B) {
   lua_State *L = B->L;
   checkbufferlevel(B, -1);
   lua_pushlstring(L, B->b, B->n);
- /* if (buffonstack(B))
-    lua_closeslot(L, B->stackIndex);*/  /* close the box */
+  if (buffonstack(B))
+    lua_closeslot(L, B->stackIndex);  /* close the box */
   lua_remove(L, B->stackIndex);  /* remove box or placeholder from the stack */
 }
 
