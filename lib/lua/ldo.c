@@ -250,15 +250,14 @@ int luaD_growstack (lua_State *L, int n, int raiseerror) {
       luaD_throw(L, LUA_ERRERR);  /* error inside message handler */
     return 0;  /* if not 'raiseerror', just signal it */
   }
-  else if (n < LUAI_MAXSTACK) {  /* avoids arithmetic overflows */
+  else if (n <= LUAI_MAXSTACK) {  /* avoids arithmetic overflows */
     int newsize = 2 * size;  /* tentative new size */
     int needed = cast_int(L->top.p - L->stack.p) + n;
-    if (newsize > LUAI_MAXSTACK)  /* cannot cross the limit */
-      newsize = LUAI_MAXSTACK;
     if (newsize < needed)  /* but must respect what was asked for */
       newsize = needed;
-    if (l_likely(newsize <= LUAI_MAXSTACK))
-      return luaD_reallocstack(L, newsize, raiseerror);
+    if (newsize > LUAI_MAXSTACK)  /* cannot cross the limit */
+      newsize = LUAI_MAXSTACK;
+    return luaD_reallocstack(L, newsize, raiseerror);
   }
   /* else stack overflow */
   /* add extra size to be able to handle the error message */
