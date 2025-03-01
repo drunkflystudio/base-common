@@ -6,7 +6,7 @@
 #include <lauxlib.h>
 
 STRUCT(Buff) {
-    luaL_Buffer buffer;
+    luaL_BufferBase buffer;
 };
 
 void buffInit(Buff* buff, lua_State* L);

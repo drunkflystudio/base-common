@@ -21,6 +21,7 @@
 
 
 typedef struct luaL_Buffer luaL_Buffer;
+typedef struct luaL_BufferBase luaL_BufferBase;
 
 
 /* extra error code for 'luaL_loadfilex' */
@@ -189,6 +190,16 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 */
 
 struct UBox;
+struct luaL_BufferBase {
+  char *b;  /* buffer address */
+  size_t size;  /* buffer size */
+  size_t n;  /* number of characters in buffer */
+  lua_State *L;
+  union {
+    /*LUAI_MAXALIGN;*/  /* ensure maximum alignment for buffer */
+    struct UBox* ubox;
+  } init;
+};
 struct luaL_Buffer {
   char *b;  /* buffer address */
   size_t size;  /* buffer size */

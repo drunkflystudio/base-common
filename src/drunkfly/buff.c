@@ -5,13 +5,13 @@
 
 void buffInit(Buff* buff, lua_State* L)
 {
-    luaL_buffinitsize(L, &buff->buffer, LUAL_BUFFERSIZE+1);
+    luaL_buffinitsize(L, (luaL_Buffer*)&buff->buffer, LUAL_BUFFERSIZE+1);
 }
 
 void buffAppend(Buff* buff, const void* data, size_t size)
 {
     if (size > 0) {
-        char *b = prepbuffsize(&buff->buffer, size, 0);
+        char *b = prepbuffsize((luaL_Buffer*)&buff->buffer, size, 0);
         memcpy(b, data, size);
         luaL_addsize(&buff->buffer, size);
     }
@@ -20,7 +20,7 @@ void buffAppend(Buff* buff, const void* data, size_t size)
 void buffPrintC(Buff* buff, char ch)
 {
     if (buff->buffer.n >= buff->buffer.size)
-        prepbuffsize(&buff->buffer, 1, 0);
+        prepbuffsize((luaL_Buffer*)&buff->buffer, 1, 0);
     buff->buffer.b[buff->buffer.n++] = ch;
 }
 
