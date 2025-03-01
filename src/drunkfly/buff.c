@@ -5,7 +5,7 @@
 
 void buffInit(Buff* buff, lua_State* L)
 {
-    luaL_buffinit(L, &buff->buffer);
+    luaL_buffinitsize(L, &buff->buffer, LUAL_BUFFERSIZE+1);
 }
 
 void buffAppend(Buff* buff, const void* data, size_t size)
